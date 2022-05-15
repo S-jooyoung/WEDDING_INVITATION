@@ -1,0 +1,69 @@
+:root {
+  --title-color: #d97d83;
+}
+* {
+  font-family: "Noto Serif KR", serif, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif,
+    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
+/* 카카오맵 버튼 없애기 */
+.wrap_controllers {
+  display: none !important;
+}
+
+.root_daum_roughmap {
+  width: 100% !important;
+  max-height: 240px !important;
+}
+.root_daum_roughmap_landing {
+  margin: auto !important;
+}
+.root_daum_roughmap .wrap_btn_zoom {
+  display: none !important;
+}
+
+@keyframes fadein {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@-moz-keyframes fadein {
+  /* Firefox */
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@-webkit-keyframes fadein {
+  /* Safari and Chrome */
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@-o-keyframes fadein {
+  /* Opera */
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* 폰트 적용 */
+@font-face {
+  font-family: "mom_to_daughter";
+  src: url("../assets/fonts/mom_to_daughter.ttf") format("ttf"),
+    url("../assets/fonts/mom_to_daughter.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
+}

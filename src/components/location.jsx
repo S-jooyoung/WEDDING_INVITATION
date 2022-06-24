@@ -1,17 +1,14 @@
 import React, { useEffect } from "react";
 import { Divider } from "antd";
 import styled from "styled-components";
-
-import GroovePaper from "../assets/GroovePaper.png";
 import Flower from "../assets/flower2.png";
 
 const Wrapper = styled.div`
-  background: #efebe9;
-  background-image: url(${GroovePaper});
   padding-top: 42px;
   padding-left: 42px;
   padding-right: 42px;
-  width: 100%;
+  width: 70%;
+  margin: 0 auto;
 `;
 
 const Title = styled.span`

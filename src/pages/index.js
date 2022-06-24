@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import { Layout } from "antd";
+import styled from "styled-components";
 import "react-image-gallery/styles/css/image-gallery.css";
 import "antd/dist/antd.css";
 import Gallery from "../components/gallery";
@@ -12,13 +13,19 @@ import Location from "../components/location";
 import CongratulatoryMoney from "../components/congratulatoryMoney";
 import Share from "../components/share";
 import Quote from "../components/quote";
-import Song from "../assets/song.mp4";
+import Song from "../assets/song.mp3";
 
 import AOS from "aos";
 import "aos/dist/aos.css";
 
 // markup
 const { Footer } = Layout;
+
+const Wrapper = styled.div`
+  background: #efebe9;
+  background-image: url(${GroovePaper});
+  width: 100%;
+`;
 
 const IndexPage = () => {
   useEffect(() => {
@@ -38,7 +45,7 @@ const IndexPage = () => {
     });
   });
   return (
-    <>
+    <Wrapper>
       <audio autoPlay loop>
         <source src={Song} />
       </audio>
@@ -59,7 +66,7 @@ const IndexPage = () => {
       >
         Copyright © 2022 Shin Jooyoung
       </Footer>
-    </>
+    </Wrapper>
   );
 };
 

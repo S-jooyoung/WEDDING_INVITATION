@@ -1,17 +1,16 @@
 import React from "react";
 import styled from "styled-components";
-
-import GroovePaper from "../assets/GroovePaper.png";
 import QuotePaper from "../assets/Quote.png";
 import Flower from "../assets/flower1.png";
 
 const Wrapper = styled.div`
-  background: #efebe9;
-  background-image: url(${GroovePaper});
   padding-top: 42px;
   padding-left: 42px;
   padding-right: 42px;
   width: 100%;
+  overflow: hidden;
+  margin: 0 auto;
+  position: relative;
 `;
 
 const Content = styled.span`

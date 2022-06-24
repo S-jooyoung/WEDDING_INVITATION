@@ -3,7 +3,7 @@ import CopyToClipboard from "react-copy-to-clipboard";
 import { Button, Divider, message } from "antd";
 import { MessageFilled, LinkOutlined } from "@ant-design/icons";
 import styled from "styled-components";
-import GroovePaper from "../assets/GroovePaper.png";
+
 import {
   KAKAOTALK_API_TOKEN,
   KAKAOTALK_SHARE_IMAGE,
@@ -13,8 +13,6 @@ import {
 } from "../../config";
 
 const Wrapper = styled.div`
-  background: #efebe9;
-  background-image: url(${GroovePaper});
   padding-top: 42px;
   width: 100%;
   text-align: center;

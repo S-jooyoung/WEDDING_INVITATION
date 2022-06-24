@@ -3,7 +3,6 @@ import { Button, Divider, message, Modal } from "antd";
 import { CheckCircleTwoTone } from "@ant-design/icons";
 import styled from "styled-components";
 import CopyToClipboard from "react-copy-to-clipboard";
-import GroovePaper from "../assets/GroovePaper.png";
 import Flower from "../assets/flower3.png";
 import {
   GROOM_NAME,
@@ -21,11 +20,10 @@ import {
 } from "../../config";
 
 const Wrapper = styled.div`
-  background: #efebe9;
-  background-image: url(${GroovePaper});
   padding-top: 42px;
   padding-bottom: 18px;
-  width: 100%;
+  width: 70%;
+  margin: 0 auto;
   text-align: center;
 `;
 
@@ -126,7 +124,7 @@ const CongratulatoryMoney = () => {
         ]}
       >
         <div>
-          <b>부) {GROOM_FATHER_NAME}</b>
+          <b>부 : {GROOM_FATHER_NAME}</b>
           <Divider type="vertical" />
           <CopyToClipboard text={GROOM_FATHER_ACCOUNT_NUMBER}>
             <Button
@@ -139,7 +137,7 @@ const CongratulatoryMoney = () => {
           </CopyToClipboard>
         </div>
         <div style={{ marginTop: 24, marginBottom: 24 }}>
-          <b>모) {GROOM_MOTHER_NAME}</b>
+          <b>모 : {GROOM_MOTHER_NAME}</b>
           <Divider type="vertical" />
           <CopyToClipboard text={GROOM_MOTHER_ACCOUNT_NUMBER}>
             <Button
@@ -177,7 +175,7 @@ const CongratulatoryMoney = () => {
         ]}
       >
         <div>
-          <b>부) {BRIDE_FATHER_NAME}</b>
+          <b>부 : {BRIDE_FATHER_NAME}</b>
           <Divider type="vertical" />
           <CopyToClipboard text={BRIDE_FATHER_ACCOUNT_NUMBER}>
             <Button
@@ -190,7 +188,7 @@ const CongratulatoryMoney = () => {
           </CopyToClipboard>
         </div>
         <div style={{ marginTop: 24, marginBottom: 24 }}>
-          <b>모) {BRIDE_MOTHER_NAME}</b>
+          <b>모 :{BRIDE_MOTHER_NAME}</b>
           <Divider type="vertical" />
           <CopyToClipboard text={BRIDE_MOTHER_ACCOUNT_NUMBER}>
             <Button

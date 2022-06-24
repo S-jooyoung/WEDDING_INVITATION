@@ -3,21 +3,19 @@ import ImageGallery from "react-image-gallery";
 import { Divider } from "antd";
 import styled from "styled-components";
 
-import GalleryPhoto1 from "../assets/Gallery_Photo_1.jpg";
-import GalleryPhoto2 from "../assets/Gallery_Photo_2.jpg";
-import GalleryPhoto3 from "../assets/Gallery_Photo_3.jpg";
-import GalleryPhoto4 from "../assets/Gallery_Photo_4.jpg";
-import GalleryPhoto5 from "../assets/Gallery_Photo_5.jpg";
-import GalleryPhoto6 from "../assets/Gallery_Photo_6.jpg";
-import GroovePaper from "../assets/GroovePaper.png";
+import GalleryPhoto1 from "../assets/Gallery_Photo_1.webp";
+import GalleryPhoto2 from "../assets/Gallery_Photo_2.webp";
+import GalleryPhoto3 from "../assets/Gallery_Photo_3.webp";
+import GalleryPhoto4 from "../assets/Gallery_Photo_4.webp";
+import GalleryPhoto5 from "../assets/Gallery_Photo_5.webp";
+import GalleryPhoto6 from "../assets/Gallery_Photo_6.webp";
 
 const Wrapper = styled.div`
-  background: #efebe9;
-  background-image: url(${GroovePaper});
   padding-top: 42px;
   padding-left: 42px;
   padding-right: 42px;
-  width: 100%;
+  width: 70%;
+  margin: 0 auto;
 `;
 
 const Title = styled.p`

@@ -10,12 +10,9 @@ import BackgroundVideo from "../assets/BackgroundVideo.mp4";
 import GroovePaper from "../assets/GroovePaper.png";
 
 const Layout = styled.div`
-  background: #efebe9;
-  background-image: url(${GroovePaper});
-  width: 100%;
+  width: 70%;
   overflow: hidden;
-  margin: 0px auto;
-  position: relative;
+  margin: 0 auto;
 `;
 
 const TitleWrapper = styled.div`

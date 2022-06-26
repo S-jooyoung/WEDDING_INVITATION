@@ -28,10 +28,6 @@ const TitleWrapper = styled.div`
 `;
 
 const VideoBackground = styled.video`
-  background: #efebe9;
-  background-image: url(${GroovePaper});
-  padding-left: 42px;
-  padding-right: 42px;
   width: 100%;
 `;
 

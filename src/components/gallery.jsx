@@ -12,8 +12,6 @@ import GalleryPhoto6 from "../assets/Gallery_Photo_6.webp";
 
 const Wrapper = styled.div`
   padding-top: 42px;
-  padding-left: 42px;
-  padding-right: 42px;
   width: 70%;
   margin: 0 auto;
 `;

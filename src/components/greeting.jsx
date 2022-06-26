@@ -13,8 +13,6 @@ import Flower from "../assets/flower1.png";
 
 const Wrapper = styled.div`
   padding-top: 42px;
-  padding-left: 42px;
-  padding-right: 42px;
   margin: 0 auto;
   width: 70%;
 `;
@@ -29,7 +27,7 @@ const Title = styled.p`
 `;
 
 const Content = styled.p`
-  font-size: 0.875rem;
+  font-size: 0.72rem;
   line-height: 1.75;
   opacity: 0.75;
   margin-bottom: 16px;

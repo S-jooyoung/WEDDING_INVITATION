@@ -24,7 +24,7 @@ https://wedding-templete.netlify.app/
 
 Netlify로 만드신다면 아래 글을 참고하세요 🕵🏻‍♂️
 
-[Gatsby 테마로 모바일 결혼 청첩장 만들기](https://s-jooyoung.github.io/gatsby-wedding-deploy/)
+[Gatsby 테마로 모바일 결혼 청첩장 만들기](https://joy.pe.kr/gatsby-wedding-deploy/)
 
 ## ❌ 오류 발생 시
 

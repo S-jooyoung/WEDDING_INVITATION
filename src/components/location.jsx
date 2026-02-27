@@ -47,8 +47,8 @@ const Location = () => {
   const executeScript = () => {
     const scriptTag = document.createElement("script");
     const inlineScript = document.createTextNode(`new daum.roughmap.Lander({
-    "timestamp" : "1652464367301",
-    "key" : "2a8fe",
+    "timestamp" : "1772152292751",
+    "key" : "igbagm9xpy9",
     "mapWidth" : "640",
     "mapHeight" : "360"
   }).render();`);
@@ -103,23 +103,27 @@ const Location = () => {
         className="root_daum_roughmap root_daum_roughmap_landing"
       ></Map>
       <Content>
-        대구 수성구 두산동 888-2번지
+        경기도 안양시 만안구 안양로 104
         <br />
-        호텔수성 수성스퀘어 3층 피오니홀
+        위더스 안양 9층 메리엘홀
         <br />
         <br />
         <Title>버스 이용시</Title>
         <br />
         <br />
-        410-1, 401 호텔수성 앞 하차
+        성결대학, 안양아트센터, 명학역 정류장 하차
         <br />
-        수성1-1, 수성3-1, 814 TBC방송국 앞 하차
+        간선버스(파랑) - 541번
+        지선버스(초록) - 5530, 5531, 5623번
+        직행좌석(빨강) - 333, 1303, 3330
+        일반버스 - 1, 1-2, 5, 8-2, 11-2, 15, 15-2, 20, 31-7, 32, 64, 88, 350번
+        마을버스 - 10-1, 10-2
         <br />
         <br />
         <Title>지하철 이용시</Title>
         <br />
         <br />
-        3호선 수성못역 하차 (도보 10분)
+        명학역 1번 출구 하차 (도보 2분)
       </Content>
     </Wrapper>
   );

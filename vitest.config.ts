@@ -20,9 +20,11 @@ export default defineConfig({
       include: ["src/**/*.{ts,tsx}"],
       exclude: [
         "src/**/*.test.{ts,tsx}",
+        "src/test/**",
         "src/types/**",
-        /* 스타일 선언만 있는 파일은 커버리지 분모를 왜곡시킨다. */
+        /* 스타일·데이터 선언만 있는 파일은 커버리지 분모를 왜곡시킨다. */
         "src/styles/**",
+        "src/data/**",
       ],
     },
   },

@@ -1,80 +1,269 @@
-# 모바일 청첩장 React.js 템플릿
+# 모바일 청첩장
 
-결혼식 초대를 위한 청첩장 템플릿입니다.  
-이 저장소가 마음에 들거나 사용하게 되신다면, Star와 Fork 부탁드리겠습니다😉
+Gatsby · TypeScript로 만든 모바일 청첩장 템플릿입니다.
+`src/data/invitation.ts` 한 파일만 고치면 그대로 사용할 수 있습니다.
 
-## 👰🏻‍♀️ 미리 보기
+**미리 보기** — https://wedding-templete.netlify.app/
 
-https://wedding-templete.netlify.app/
+---
 
-## 📚 내용 및 기능
+## 무엇을 다루는 프로젝트인가
 
-- 결혼식 날짜, 위치, 인사말 출력
-- 사진첩
-- 축의금을 보내실 곳 (계좌번호 클립보드 복사 기능 지원)
-- 카카오톡 공유 기능 및 링크 공유 기능
+카카오톡으로 링크가 전달되어 모바일에서 열리는 정적 사이트입니다.
+페이지는 한 장뿐이지만, 그래서 오히려 다음 문제들이 전면에 드러납니다.
 
-## 🚘 시작하기
+- **첫 화면 로딩** — 3G/LTE 환경에서 열리고, 하객은 기다려 주지 않습니다.
+- **링크 미리보기** — 유통 경로가 메신저이므로 OG 카드가 곧 첫인상입니다.
+- **접근성** — 하객 연령대가 넓습니다. 스크린 리더와 키보드만으로도 계좌번호에
+  도달할 수 있어야 합니다.
+- **외부 SDK 의존** — 카카오맵과 카카오 공유 SDK가 실패해도 청첩장은 살아 있어야
+  합니다.
 
-1. `$ cd WEDDING_INVITATION` - 해당 프로젝트 폴더로 이동
-2. `$ npm install` - 디펜던시 설치
-3. `$ npm start` - 로컬로 실행
+아래는 2022년에 작성한 초기 구현을 다시 손보며 내린 판단들입니다.
 
-## 🔧 Netlify로 만들기
+---
 
-Netlify로 만드신다면 아래 글을 참고하세요 🕵🏻‍♂️
+## 기술적 의사결정
 
-[Gatsby 테마로 모바일 결혼 청첩장 만들기](https://joy.pe.kr/gatsby-wedding-deploy/)
+### 1. UI 라이브러리(antd)를 걷어내고 직접 구현했다
 
-## ❌ 오류 발생 시
+청첩장이 antd에서 실제로 쓰는 것은 `Divider` · `Button` · `Modal` · `message`
+넷뿐인데, 그 대가로 `antd/dist/antd.css` 전체를 렌더 블로킹으로 받고 있었습니다.
+게다가 대부분의 기본 스타일을 `!important`로 덮어쓰는 구조였습니다.
 
-`rm -rf package-lock.json` 과 `rm -rf node_modules` 후 다시 `npm install` 수행
+직접 만들면서 antd가 대신 해주던 요구사항을 명시적으로 다뤘습니다.
+특히 모달은 "떠 있는 상자"가 아니라 아래 규약을 지켜야 비로소 모달입니다.
 
-## 🛠 커스터마이징
+- 열리면 포커스가 안으로 들어가고 Tab이 밖으로 새지 않는다
+- ESC로 닫히고, 닫히면 열기 직전 요소로 포커스가 돌아간다
+- `role="dialog"` · `aria-modal` · 제목/설명 연결
+- 열려 있는 동안 배경이 스크롤되지 않는다
 
-`./config.js`를 수정하여 사용합니다.
+구현 중 테스트가 실제 결함을 잡았습니다. portal 렌더용 `mounted` 상태가
+두 번째 렌더에서 `true`가 되는데 포커스 effect의 의존성이 `[open]`뿐이라,
+ref가 채워진 시점에 effect가 다시 돌지 않아 포커스가 끝내 `body`에 머물렀습니다.
 
-```javascript
-export const WEDDING_INVITATION_URL = "http://localhost:8000/";
-export const KAKAOTALK_API_TOKEN = "JavaScript 키 입력";
-export const KAKAOTALK_SHARE_IMAGE =
-  "https://cdn.pixabay.com/photo/2014/11/13/17/04/heart-529607_960_720.jpg";
+> 런타임 의존성 10개 → 5개 (npm 패키지 63개 제거)
 
-export const WEDDING_DATE = "1970년 01월 01일, 목요일 오전 12시 00분";
-export const WEDDING_LOCATION = "○○○웨딩, ○층 ○○홀";
+### 2. 문자열이 아니라 도메인을 모델링했다
 
-export const GROOM_NAME = "○○○";
-export const GROOM_ACCOUNT_NUMBER = "○○은행 ***-***-******";
-export const GROOM_FATHER_NAME = "○○○";
-export const GROOM_FATHER_ACCOUNT_NUMBER = "○○은행 ***-***-******";
-export const GROOM_MOTHER_NAME = "○○○";
-export const GROOM_MOTHER_ACCOUNT_NUMBER = "○○은행 ***-***-******";
+기존 `config.js`는 21개의 평면 문자열 상수였습니다. 신랑/신부 × 본인/부/모 ×
+이름/계좌라는 명백한 구조가 `GROOM_FATHER_ACCOUNT_NUMBER`라는 **이름에만**
+존재하고 타입에는 없었습니다.
 
-export const BRIDE_NAME = "○○○";
-export const BRIDE_ACCOUNT_NUMBER = "○○은행 ***-***-******";
-export const BRIDE_FATHER_NAME = "○○○";
-export const BRIDE_FATHER_ACCOUNT_NUMBER = "○○은행 ***-***-******";
-export const BRIDE_MOTHER_NAME = "○○○";
-export const BRIDE_MOTHER_ACCOUNT_NUMBER = "○○은행 ***-***-******";
+그 결과 축의금 컴포넌트가 12개 상수를 개별로 import해 같은 마크업을 두 번
+복사했고, 그 복사본은 이미 어긋나 있었습니다. 한쪽은 `모 : {이름}`,
+다른 쪽은 `모 :{이름}`으로 공백이 빠져 있었습니다.
+
+```ts
+// 관계를 타입으로 표현하고
+interface Partner {
+  name: string;
+  childOrder: string;
+  father: Parent;
+  mother: Parent;
+  account: Account | null; // 계좌를 공개하지 않는 혼주가 실제로 있다
+}
+
+// 화면이 필요로 하는 형태는 파생시킨다
+selectGiftAccountGroups(couple): GiftAccountGroup[]
 ```
 
-`./src/components/location.jsx`를 수정하여 원하는 위치의 카카오 지도를 사용합니다.
+파생을 컴포넌트 밖으로 꺼내니 축의금 섹션은 그룹 배열을 순회만 하면 됩니다.
 
-```javascript
-//  1. `https://map.kakao.com/`로 이동
-//  2. 원하는 위치를 검색하여 `HTML 태그 복사`클릭
-//  3. `소스 생성하기`클릭
-//  4. `timestamp,key` 위의 코드에 알맞게 입력
+### 3. 예식 일시를 ISO 8601로 두고 표기를 파생시켰다
 
-const executeScript = () => {
-  const scriptTag = document.createElement("script");
-  const inlineScript = document.createTextNode(`new daum.roughmap.Lander({
-    "timestamp" : "1652464367301",
-    "key" : "2a8fe",
-    "mapWidth" : "640",
-    "mapHeight" : "360"
-  }).render();`);
-  scriptTag.appendChild(inlineScript);
-  document.body.appendChild(scriptTag);
-};
+기존 값은 `"1970년 01월 01일, 목요일 오전 12시 00분"`이라는 사람이 손으로 쓴
+완성된 문자열이었습니다. 날짜만 고치고 요일을 안 고치면 틀린 청첩장이 그대로
+나가지만, 코드는 그것을 알 방법이 없습니다.
+
+이제 `startsAt: "2026-05-16T12:00:00+09:00"` 하나만 두고 요일과 오전/오후를
+`Intl`로 파생시킵니다. 사람이 요일을 계산하지 않으므로 어긋날 수 없습니다.
+
+다만 **오전/오후만은 `Intl`의 `dayPeriod`를 쓰지 않습니다.** `ko-KR`의
+`dayPeriod`는 실행 환경이 탑재한 CLDR 버전에 따라 "오후"가 되기도 하고 "PM"이
+되기도 하며, Node 22(full-icu)는 실제로 "PM"을 반환합니다. 청첩장 문구가 런타임
+환경에 따라 달라지면 안 되므로 24시간 값에서 직접 계산합니다.
+이 문제는 시간대 이식성 테스트가 검출했습니다.
+
+### 4. 첫 화면 전송량 9.7MB → 854KB
+
+| 항목            |  이전 |  이후 | 방법                                       |
+| --------------- | ----: | ----: | ------------------------------------------ |
+| 손글씨 폰트     | 6.3MB | 528KB | KS X 1001 2,350자 서브셋, woff 폴백 제거   |
+| 갤러리 사진 6장 | 2.9MB | 273KB | 6000×4000 → 1200px 재인코딩, 첫 장 외 lazy |
+| 배경 영상       | 1.9MB | 490KB | 720px/CRF32 재인코딩, poster 추가          |
+| 배경 음악       | 1.7MB |   0KB | `preload="none"` + 사용자 토글             |
+
+몇 가지 판단 근거입니다.
+
+- **폰트를 실사용 문자로만 줄이지 않은 이유** — 더 작아지지만, 템플릿 사용자가
+  인용구를 고치는 순간 폰트가 무용지물이 됩니다. 상용 음절 집합을 유지했습니다.
+- **`woff` 삭제** — 브라우저는 `woff2`를 지원하면 `woff`를 아예 요청하지 않으므로,
+  아무도 내려받지 않는 3.6MB가 저장소에만 남아 있었습니다.
+- **이미지에서 중요한 것은 파일 크기만이 아니다** — 6000×4000 이미지 한 장의
+  디코딩 메모리는 약 96MB입니다. 모바일에서는 이쪽이 더 치명적입니다.
+- **음악 자동재생 제거** — 자동재생 정책에 막혀 재생되지도 않으면서 1.7MB를
+  내려받고 있었고, 멈출 수단이 없는 소리는 WCAG 1.4.2 위반입니다.
+
+재현 절차는 [`scripts/`](./scripts)에 남겨 두었습니다.
+
+### 5. 실패를 상태로 표현했다
+
+외부 SDK는 실패합니다. 기존 구현은 실패를 감지할 방법 자체가 없었습니다.
+
+- 카카오맵 스크립트가 실패하면 지도 자리가 빈 칸으로 남았습니다. 하객은 예식장
+  위치를 확인할 방법이 없고, 코드도 실패 사실을 몰랐습니다.
+  → `useKakaoRoughMap`이 `loading | ready | failed`를 돌려주고, 실패 시 카카오맵
+  검색 링크로 대체합니다.
+- `window.Kakao`가 없으면 공유 버튼이 조용히 아무것도 하지 않았습니다.
+  → 로드 실패를 잡아 링크 복사를 안내합니다. 키가 설정되지 않았으면 버튼 자체를
+  그리지 않습니다.
+- 클립보드 복사는 성공 여부와 무관하게 항상 "복사되었습니다"를 띄웠습니다.
+  `CopyToClipboard`의 `onCopy`가 아니라 자식 버튼의 `onClick`에 토스트를 달아
+  둔 탓입니다. 계좌번호에서 이 구분은 금전 사고로 이어집니다.
+  → 성공 여부를 `boolean`으로 돌려주고 호출부가 메시지를 고릅니다.
+
+문자열을 `<script>`로 주입해 실행하던 지도 초기화도 직접 호출로 바꿨습니다.
+`eval`과 다를 바 없고, 실행 실패를 감지할 수도 없었습니다.
+
+### 6. 접근성은 나중에 붙이는 기능이 아니다
+
+기존 마크업은 전부 `<div>`와 `<p>`였고, 랜드마크와 헤딩이 하나도 없었습니다.
+스크린 리더 사용자는 제목 목록으로 문서를 훑고 원하는 지점으로 건너뛰는데,
+그 목록이 비어 있으면 처음부터 끝까지 순차로 듣는 수밖에 없습니다.
+
+- `main` / `header` / `section` / `footer` + `h1`~`h3` 계층 부여
+- 클릭 가능한 `styled.div` → `button`. 계좌번호에 이르는 유일한 경로가 마우스
+  클릭이었습니다.
+- 장식 이미지에 `alt=""`. 속성이 아예 없으면 스크린 리더가 파일 경로를 읽습니다.
+- 클립보드 결과를 `role="status"` + `aria-live` 영역으로 전달
+- 강조색 `#d97d83` → `#a8434a`. 기존 색은 배경 대비 **2.46:1**로 WCAG AA 본문
+  기준(4.5:1)은 물론 큰 글씨 기준(3:1)에도 미달했습니다. 색조를 유지하고 명도만
+  낮춰 4.97:1을 확보했습니다.
+- `prefers-reduced-motion` 대응. 전정기관 장애가 있는 사용자에게 스크롤
+  애니메이션은 어지럼증을 유발합니다.
+
+### 7. 도구가 잡을 수 있는 것은 사람이 보지 않는다
+
+ESLint를 도입하자마자 실제 결함이 검출됐습니다.
+
+- `useEffect(InstallScript, [InstallScript])` — 매 렌더 재생성되는 함수가
+  의존성에 들어가 사실상 의존성이 없는 상태
+- `AOS.init()`의 의존성 배열 누락 — 매 렌더 재초기화
+- `<audio>` 캡션 트랙 누락
+- 참조되지 않는 import
+
+`document.body.romoveChile(script)` 오타도 있었습니다. cleanup이 실행되는 순간
+`TypeError`를 던지는 코드였습니다.
+
+CI에는 **빌드를 반드시 포함**시켰습니다. SSR에서만 드러나는 오류는 개발
+서버에서 전혀 나타나지 않습니다. 이번 작업에서도 `tsc`는 통과하는데
+`gatsby build`만 `ReferenceError: React is not defined`로 실패하는 일이
+있었습니다. (원인은 Gatsby의 기본 JSX 런타임이 `classic`이라는 것이었고,
+`tsconfig`의 `"jsx": "react-jsx"`는 타입 검사에만 적용되어 이 불일치를 가립니다.)
+
+---
+
+## 기술 스택
+
+| 영역       | 선택                                                         |
+| ---------- | ------------------------------------------------------------ |
+| 프레임워크 | Gatsby 5 (정적 생성)                                         |
+| 언어       | TypeScript (strict, `noUncheckedIndexedAccess`)              |
+| 스타일     | styled-components 6 + 디자인 토큰                            |
+| 테스트     | Vitest + React Testing Library (60건)                        |
+| 품질       | ESLint 9 (flat config, `jsx-a11y`, `react-hooks`) · Prettier |
+| CI         | GitHub Actions — 타입 · 린트 · 포맷 · 테스트 · 빌드          |
+
+런타임 의존성은 `gatsby`, `react`, `react-dom`, `styled-components`,
+`gatsby-plugin-styled-components`, `gatsby-plugin-manifest` 뿐입니다.
+
+---
+
+## 구조
+
 ```
+src/
+├── data/invitation.ts        # 청첩장 내용 — 사용자가 고치는 유일한 파일
+├── config/site.ts            # 배포·외부 연동 설정 (환경 변수)
+├── types/                    # 도메인 모델, 외부 SDK 타입 선언
+├── lib/                      # 순수 로직 (날짜 파생, 계좌 파생, SDK 로더)
+├── hooks/                    # 부수효과 격리 (클립보드, 지도, 뷰포트 감지)
+├── components/
+│   ├── ui/                   # 프리미티브 (Modal, Button, Toast, …)
+│   ├── layout/               # 골격 (Section, Container, MusicToggle)
+│   └── sections/             # 청첩장 각 단락
+├── providers/RootProvider.tsx
+└── pages/
+```
+
+경계의 기준은 **부수효과를 어디까지 밀어냈는가**입니다.
+`lib/`는 순수 함수라 테스트에 DOM이 필요 없고, 외부 세계와 닿는 부분은
+전부 `hooks/`에 모여 있습니다.
+
+---
+
+## 시작하기
+
+```bash
+npm install
+npm start          # http://localhost:8000
+```
+
+Node 22를 사용합니다 (`.nvmrc`).
+
+### 커스터마이징
+
+**1. 청첩장 내용** — [`src/data/invitation.ts`](./src/data/invitation.ts)
+한 파일만 고치면 됩니다. 신랑·신부 정보, 예식 일시, 예식장, 인사말, 인용구,
+사진이 모두 여기 있습니다. 컴포넌트에는 어떤 개인 정보도 하드코딩되어 있지
+않습니다.
+
+**2. 지도** — [map.kakao.com](https://map.kakao.com)에서 예식장을 검색해
+`지도 퍼가기 → HTML 태그 복사 → 소스 생성하기`를 누르면 나오는 `timestamp`와
+`key`를 `venue.map`에 넣습니다. 발급받지 않았다면 `null`로 두면 지도 영역이
+렌더링되지 않습니다.
+
+**3. 환경 변수** — `.env.example`을 `.env`로 복사해 채웁니다.
+
+```bash
+GATSBY_SITE_URL=https://your-domain.com   # OG 태그의 canonical URL
+GATSBY_KAKAO_JAVASCRIPT_KEY=              # 비우면 링크 복사만 제공
+```
+
+카카오 JavaScript 키는 클라이언트 노출을 전제로 발급되는 공개 키입니다
+(도메인 화이트리스트로 보호됩니다). 그럼에도 소스에 박지 않는 이유는, 포크한
+사람이 원저장소의 키로 요청을 보내게 되고 키 교체에 재배포가 강제되기
+때문입니다.
+
+**4. 사진 교체 후** — 원본을 그대로 넣지 말고 최적화 스크립트를 실행하세요.
+
+```bash
+./scripts/optimize-images.sh          # 1200px webp로 재인코딩
+python3 scripts/subset-font.py        # 폰트 문구를 크게 바꿨을 때만
+```
+
+---
+
+## 명령어
+
+```bash
+npm start            # 개발 서버
+npm run build        # 프로덕션 빌드
+npm test             # 테스트
+npm run test:coverage
+npm run typecheck
+npm run lint
+npm run format
+npm run validate     # typecheck + lint + test
+```
+
+---
+
+## 라이선스
+
+[MIT](./LICENSE)
+
+손글씨 폰트는 네이버 [나눔손글씨 "딸에게 엄마가"](https://clova.ai/handwriting)를
+사용했습니다.

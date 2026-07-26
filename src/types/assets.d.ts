@@ -5,6 +5,9 @@
  * 넘겨주지만, TypeScript는 이를 알지 못하므로 명시적으로 선언한다.
  */
 
+/** 부수 효과로만 불러오는 전역 스타일시트. */
+declare module "*.css";
+
 declare module "*.png" {
   const src: string;
   export default src;

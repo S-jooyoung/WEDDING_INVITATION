@@ -2,6 +2,7 @@ import styled from "styled-components";
 import BackgroundVideo from "@/assets/BackgroundVideo.mp4";
 import { Container } from "@/components/layout/Container";
 import { invitation } from "@/data/invitation";
+import { useDaysUntilCeremony } from "@/hooks/useDaysUntilCeremony";
 import { formatCeremonyDateTime, toDateTimeAttribute } from "@/lib/ceremony";
 
 /**
@@ -12,6 +13,7 @@ import { formatCeremonyDateTime, toDateTimeAttribute } from "@/lib/ceremony";
  */
 export function Hero() {
   const { couple, ceremony, venue } = invitation;
+  const daysLeft = useDaysUntilCeremony(ceremony.startsAt);
 
   return (
     <Header>
@@ -27,11 +29,12 @@ export function Hero() {
           <br />
           {venue.name} {venue.hall}
         </Schedule>
+        {daysLeft !== null && daysLeft > 0 && (
+          <Countdown>예식까지 {daysLeft}일 남았습니다</Countdown>
+        )}
       </Container>
 
-      {/* eslint-disable-next-line jsx-a11y/media-has-caption --
-          소리가 없는 장식용 배경 영상이라 전달할 대사가 없다.
-          aria-hidden으로 접근성 트리에서 제외한다. */}
+      {/* 소리도 대사도 없는 장식용 배경 영상이므로 접근성 트리에서 제외한다. */}
       <BackdropVideo
         autoPlay
         loop
@@ -77,9 +80,15 @@ const Names = styled.h1`
 `;
 
 const Schedule = styled.p`
-  margin-bottom: ${({ theme }) => theme.space[6]};
+  margin-bottom: ${({ theme }) => theme.space[4]};
   color: ${({ theme }) => theme.color.textMuted};
   font-size: ${({ theme }) => theme.fontSize.sm};
+`;
+
+const Countdown = styled.p`
+  margin-bottom: ${({ theme }) => theme.space[6]};
+  color: ${({ theme }) => theme.color.accent};
+  font-size: ${({ theme }) => theme.fontSize.xs};
 `;
 
 const BackdropVideo = styled.video`

@@ -52,6 +52,9 @@ export default [
         { prefer: "type-imports", fixStyle: "inline-type-imports" },
       ],
 
+      /* props 검증은 TypeScript가 한다. prop-types는 중복이자 런타임 비용이다. */
+      "react/prop-types": "off",
+
       /* 정적 사이트라 콘솔 로그가 사용자 브라우저에 그대로 노출된다. */
       "no-console": ["warn", { allow: ["warn", "error"] }],
       eqeqeq: ["error", "always"],

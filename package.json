@@ -30,15 +30,10 @@
     "validate": "npm run typecheck && npm run lint && npm run test"
   },
   "dependencies": {
-    "@ant-design/icons": "^4.8.3",
-    "antd": "^4.24.16",
-    "aos": "^2.3.4",
     "gatsby": "^5.16.1",
     "gatsby-plugin-styled-components": "^6.16.0",
     "react": "^18.3.1",
-    "react-copy-to-clipboard": "^5.1.0",
     "react-dom": "^18.3.1",
-    "react-image-gallery": "^1.4.0",
     "styled-components": "^6.1.19"
   },
   "devDependencies": {

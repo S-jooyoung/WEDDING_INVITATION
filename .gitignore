@@ -1,3 +1,21 @@
+# 의존성
 node_modules/
+
+# Gatsby 빌드 산출물
 .cache/
-public
+public/
+
+# 환경 변수 (실제 값은 절대 커밋하지 않는다)
+.env
+.env.*
+!.env.example
+
+# 테스트 리포트
+coverage/
+
+# 에디터 · OS
+.DS_Store
+*.log
+
+# 로컬 에이전트 도구 상태
+.omc/

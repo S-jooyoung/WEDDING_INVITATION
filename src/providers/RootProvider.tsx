@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { ThemeProvider } from "styled-components";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { ToastProvider } from "@/components/ui";
 import { GlobalStyle } from "@/styles/GlobalStyle";
 import { theme } from "@/styles/theme";
@@ -14,7 +15,10 @@ export function RootProvider({ children }: { children: ReactNode }) {
   return (
     <ThemeProvider theme={theme}>
       <GlobalStyle />
-      <ToastProvider>{children}</ToastProvider>
+      {/* 대체 화면도 테마를 써야 하므로 ThemeProvider 안쪽에 둔다. */}
+      <ErrorBoundary>
+        <ToastProvider>{children}</ToastProvider>
+      </ErrorBoundary>
     </ThemeProvider>
   );
 }

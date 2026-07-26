@@ -80,7 +80,10 @@ function AccountModal({
       description="계좌번호를 누르면 복사됩니다."
     >
       {group.entries.map((entry) => (
-        <AccountRow key={`${entry.relation}-${entry.account.number}`} entry={entry} />
+        <AccountRow
+          key={`${entry.relation}-${entry.account.number}`}
+          entry={entry}
+        />
       ))}
     </Modal>
   );

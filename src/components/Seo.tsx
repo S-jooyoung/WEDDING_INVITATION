@@ -73,8 +73,7 @@ export function Seo({ title, description, pathname = "/" }: SeoProps) {
           "@type": "Event",
           name: pageTitle,
           startDate: invitation.ceremony.startsAt,
-          eventAttendanceMode:
-            "https://schema.org/OfflineEventAttendanceMode",
+          eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
           eventStatus: "https://schema.org/EventScheduled",
           image: [ogImage],
           description: `${ceremonyDate} ${invitation.venue.name}`,

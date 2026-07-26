@@ -32,7 +32,9 @@ export function getMapContainerId(embed: KakaoMapEmbed): string {
  *    사라진 상태(재마운트)에서 지도가 영영 다시 그려지지 않았다.
  */
 export function useKakaoRoughMap(embed: KakaoMapEmbed | null): MapStatus {
-  const [status, setStatus] = useState<MapStatus>(embed === null ? "idle" : "loading");
+  const [status, setStatus] = useState<MapStatus>(
+    embed === null ? "idle" : "loading",
+  );
 
   useEffect(() => {
     if (embed === null) {

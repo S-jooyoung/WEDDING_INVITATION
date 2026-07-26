@@ -85,8 +85,6 @@ describe("formatAccountForCopy", () => {
     const [groomGroup] = selectGiftAccountGroups(couple());
     const entry = groomGroup?.entries[0];
 
-    expect(entry && formatAccountForCopy(entry)).toBe(
-      "○○은행 123-456-789012",
-    );
+    expect(entry && formatAccountForCopy(entry)).toBe("○○은행 123-456-789012");
   });
 });

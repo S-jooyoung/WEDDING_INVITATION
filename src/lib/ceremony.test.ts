@@ -75,9 +75,7 @@ describe("formatCeremonyDateTime", () => {
     );
 
     it("오류 메시지에 잘못된 입력값을 포함한다", () => {
-      expect(() => formatCeremonyDateTime("2026-13-45")).toThrow(
-        /2026-13-45/,
-      );
+      expect(() => formatCeremonyDateTime("2026-13-45")).toThrow(/2026-13-45/);
     });
   });
 });

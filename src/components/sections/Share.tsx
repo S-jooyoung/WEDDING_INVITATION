@@ -88,7 +88,13 @@ export function Share() {
 
 function TalkIcon() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+      focusable="false"
+    >
       <path
         fill="currentColor"
         d="M12 3C6.99 3 3 6.22 3 10.19c0 2.52 1.68 4.73 4.2 6L6.3 20.1c-.09.33.27.6.56.42l4.62-3.05c.17.01.35.02.52.02 5.01 0 9-3.22 9-7.2S17.01 3 12 3Z"

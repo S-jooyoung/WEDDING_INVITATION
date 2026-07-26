@@ -40,7 +40,9 @@ export function Section({
       {title !== undefined && (
         <SectionHeading id={headingId}>{title}</SectionHeading>
       )}
-      {ornament && <OrnamentImage src={Ornament} alt="" width={22} height={23} />}
+      {ornament && (
+        <OrnamentImage src={Ornament} alt="" width={22} height={23} />
+      )}
       {children}
     </SectionElement>
   );

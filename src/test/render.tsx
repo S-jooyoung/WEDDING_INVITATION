@@ -1,4 +1,8 @@
-import { render, type RenderOptions, type RenderResult } from "@testing-library/react";
+import {
+  render,
+  type RenderOptions,
+  type RenderResult,
+} from "@testing-library/react";
 import type { ReactElement, ReactNode } from "react";
 import { ThemeProvider } from "styled-components";
 import { ToastProvider } from "@/components/ui";

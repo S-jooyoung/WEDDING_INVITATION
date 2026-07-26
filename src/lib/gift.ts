@@ -27,8 +27,16 @@ function toGroup(
   selfRelation: string,
 ): GiftAccountGroup {
   const candidates = [
-    { relation: "아버지", name: partner.father.name, account: partner.father.account },
-    { relation: "어머니", name: partner.mother.name, account: partner.mother.account },
+    {
+      relation: "아버지",
+      name: partner.father.name,
+      account: partner.father.account,
+    },
+    {
+      relation: "어머니",
+      name: partner.mother.name,
+      account: partner.mother.account,
+    },
     { relation: selfRelation, name: partner.name, account: partner.account },
   ];
 

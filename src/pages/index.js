@@ -4,15 +4,15 @@ import styled from "styled-components";
 import "react-image-gallery/styles/css/image-gallery.css";
 import "antd/dist/antd.css";
 import Gallery from "../components/gallery";
-import Greeting from "../components/greeting";
-import Title from "../components/title";
+import { Greeting } from "../components/sections/Greeting";
+import { Hero } from "../components/sections/Hero";
+import { Quote } from "../components/sections/Quote";
 import "../styles/index.css";
 
 import GroovePaper from "../assets/GroovePaper.png";
 import Location from "../components/location";
 import CongratulatoryMoney from "../components/congratulatoryMoney";
 import Share from "../components/share";
-import Quote from "../components/quote";
 import Song from "../assets/song.mp3";
 
 import AOS from "aos";
@@ -49,7 +49,7 @@ const IndexPage = () => {
       <audio autoPlay loop>
         <source src={Song} />
       </audio>
-      <Title />
+      <Hero />
       <Greeting />
       <Gallery />
       <Location />

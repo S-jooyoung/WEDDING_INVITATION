@@ -1,0 +1,5 @@
+# 같은 사람이 여러 이름·이메일로 커밋한 것을 하나로 모아 표시한다.
+# 커밋 자체는 바뀌지 않는다. git shortlog / blame / log의 표시만 통합된다.
+Jooyoung Shin <jooyoung.dev@gmail.com> <89891516+S-jooyoung@users.noreply.github.com>
+Jooyoung Shin <jooyoung.dev@gmail.com> S-jooyoung <jooyoung.dev@gmail.com>
+Jooyoung Shin <jooyoung.dev@gmail.com> jooyoung <jooyoung.dev@gmail.com>

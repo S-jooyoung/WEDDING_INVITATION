@@ -13,6 +13,9 @@
   "engines": {
     "node": ">=18.0.0 <26"
   },
+  "sideEffects": [
+    "*.css"
+  ],
   "scripts": {
     "develop": "gatsby develop",
     "start": "gatsby develop",

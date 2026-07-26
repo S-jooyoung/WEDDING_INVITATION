@@ -30,9 +30,17 @@ export function Hero() {
           <br />
           {venue.name} {venue.hall}
         </Schedule>
-        {daysLeft !== null && daysLeft > 0 && (
-          <Countdown>예식까지 {daysLeft}일 남았습니다</Countdown>
-        )}
+        {/*
+          남은 일수는 마운트 이후에야 정해지므로(SSG 특성상 렌더 중 계산 불가),
+          조건부로 끼워 넣으면 hydration 직후 아래 내용이 통째로 밀려 내려간다.
+          바로 아래가 이 페이지의 LCP 후보인 배경 영상이라 그 이동이 CLS로 잡힌다.
+          자리를 미리 잡아 두고 내용만 채운다.
+        */}
+        <Countdown>
+          {daysLeft !== null && daysLeft > 0
+            ? `예식까지 ${daysLeft}일 남았습니다`
+            : null}
+        </Countdown>
       </Container>
 
       {/* 소리도 대사도 없는 장식용 배경 영상이므로 접근성 트리에서 제외한다. */}
@@ -93,6 +101,8 @@ const Schedule = styled.p`
 `;
 
 const Countdown = styled.p`
+  /* 비어 있을 때도 한 줄 높이를 유지해 내용이 채워져도 레이아웃이 움직이지 않는다. */
+  min-height: 1.75em;
   margin-bottom: ${({ theme }) => theme.space[6]};
   color: ${({ theme }) => theme.color.accent};
   font-size: ${({ theme }) => theme.fontSize.xs};

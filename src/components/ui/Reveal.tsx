@@ -1,4 +1,4 @@
-import type { ElementType, ReactNode } from "react";
+import type { ReactNode } from "react";
 import styled from "styled-components";
 import { useInView } from "@/hooks/useInView";
 
@@ -6,22 +6,21 @@ export interface RevealProps {
   children: ReactNode;
   /** 여러 요소를 순차로 등장시킬 때 쓰는 지연 시간(ms). */
   delay?: number;
-  as?: ElementType;
-  className?: string;
 }
 
-/** 화면에 들어올 때 아래에서 떠오르는 등장 효과. */
-export function Reveal({ children, delay = 0, as, className }: RevealProps) {
+/**
+ * 화면에 들어올 때 아래에서 떠오르는 등장 효과.
+ *
+ * 렌더할 태그를 바꾸는 `as` prop은 일부러 두지 않았다. useInView가
+ * HTMLDivElement로 고정된 ref를 만들기 때문에, `as`로 다른 요소를 렌더하면
+ * ref 타입과 실제 DOM 요소가 조용히 어긋난다. 다른 태그가 필요해지면
+ * useInView의 타입 파라미터와 함께 올바르게 열어야 한다.
+ */
+export function Reveal({ children, delay = 0 }: RevealProps) {
   const { ref, inView } = useInView<HTMLDivElement>();
 
   return (
-    <Wrapper
-      ref={ref}
-      as={as}
-      className={className}
-      $visible={inView}
-      $delay={delay}
-    >
+    <Wrapper ref={ref} $visible={inView} $delay={delay}>
       {children}
     </Wrapper>
   );

@@ -1,5 +1,6 @@
 import { Link } from "gatsby";
 import styled from "styled-components";
+import { Seo } from "@/components/Seo";
 
 /**
  * 404 페이지.
@@ -24,13 +25,7 @@ export default function NotFoundPage() {
 }
 
 export function Head() {
-  return (
-    <>
-      <title>페이지를 찾을 수 없습니다</title>
-      {/* 오류 페이지가 검색 결과에 남지 않게 한다. */}
-      <meta name="robots" content="noindex" />
-    </>
-  );
+  return <Seo title="페이지를 찾을 수 없습니다" pathname="/404" />;
 }
 
 const Main = styled.main`

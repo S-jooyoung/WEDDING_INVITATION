@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import GroovePaper from "@/assets/GroovePaper.png";
 import Song from "@/assets/song.mp3";
+import { Seo } from "@/components/Seo";
 import { MusicToggle } from "@/components/layout/MusicToggle";
 import { Gallery } from "@/components/sections/Gallery";
 import { Gift } from "@/components/sections/Gift";
@@ -35,6 +36,10 @@ export default function IndexPage() {
       </Footer>
     </Page>
   );
+}
+
+export function Head() {
+  return <Seo />;
 }
 
 const Page = styled.div`

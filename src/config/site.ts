@@ -58,7 +58,11 @@ export const siteConfig: SiteConfig = {
   description:
     "저희 두 사람이 사랑의 이름으로 지켜나갈 수 있게 앞날을 축복해 주세요.",
   url: resolveSiteUrl(),
-  ogImagePath: "/og-image.png",
+  /*
+   * 링크 미리보기 이미지. webp가 아니라 jpg인 이유는 카카오톡을 비롯한
+   * 일부 메신저의 미리보기 수집기가 webp를 렌더링하지 못하기 때문이다.
+   */
+  ogImagePath: "/og-image.jpg",
   locale: "ko_KR",
   kakao: {
     javaScriptKey: process.env.GATSBY_KAKAO_JAVASCRIPT_KEY ?? null,

@@ -22,7 +22,29 @@ const config: GatsbyConfig = {
    */
   jsxRuntime: "automatic",
 
-  plugins: ["gatsby-plugin-styled-components"],
+  plugins: [
+    "gatsby-plugin-styled-components",
+    {
+      /*
+       * 파비콘과 홈 화면 아이콘.
+       *
+       * src/images/icon.png는 예전부터 저장소에 있었지만 어떤 플러그인도
+       * 참조하지 않아, 브라우저 탭에는 Gatsby 기본 아이콘이 떴다.
+       */
+      resolve: "gatsby-plugin-manifest",
+      options: {
+        name: siteConfig.title,
+        short_name: "청첩장",
+        description: siteConfig.description,
+        lang: "ko",
+        start_url: "/",
+        background_color: "#efebe9",
+        theme_color: "#efebe9",
+        display: "standalone",
+        icon: "src/images/icon.png",
+      },
+    },
+  ],
 };
 
 export default config;

@@ -9,6 +9,28 @@ const MS_PER_DAY = 86_400_000;
  * 나가지만, 코드는 그것을 알 방법이 없었다.
  */
 
+/**
+ * ISO 문자열을 Date로 바꾸되, 파싱에 실패하면 원인을 알 수 있게 실패한다.
+ *
+ * Date는 잘못된 입력을 예외 대신 Invalid Date로 돌려주고, 그 값을 Intl에
+ * 넘기는 순간 "RangeError: Invalid time value"로 터진다. 이 오류만으로는
+ * 어느 데이터가 잘못됐는지 알 수 없고, SSG에서는 빌드 전체가 실패한다.
+ * 데이터 파일에 오타를 낸 사람이 곧바로 알아볼 수 있는 메시지를 남긴다.
+ */
+function parseCeremonyDate(startsAt: string): Date {
+  const date = new Date(startsAt);
+
+  if (Number.isNaN(date.getTime())) {
+    throw new Error(
+      `예식 일시를 해석할 수 없습니다: ${JSON.stringify(startsAt)}. ` +
+        `src/data/invitation.ts의 ceremony.startsAt을 ` +
+        `"2026-05-16T12:00:00+09:00" 형식으로 적어 주세요.`,
+    );
+  }
+
+  return date;
+}
+
 function partsOf(
   date: Date,
   options: Intl.DateTimeFormatOptions,
@@ -34,7 +56,7 @@ function requirePart(
 
 /** 예: "2026년 5월 16일 토요일 오후 12시 00분" */
 export function formatCeremonyDateTime(startsAt: string): string {
-  const parts = partsOf(new Date(startsAt), {
+  const parts = partsOf(parseCeremonyDate(startsAt), {
     year: "numeric",
     month: "numeric",
     day: "numeric",
@@ -74,7 +96,7 @@ function toTwelveHourClock(hour24: number): { period: string; hour: number } {
 
 /** 예: "2026.05.16" — 제목처럼 좁은 자리에 쓰는 짧은 표기 */
 export function formatCeremonyDateShort(startsAt: string): string {
-  const parts = partsOf(new Date(startsAt), {
+  const parts = partsOf(parseCeremonyDate(startsAt), {
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
@@ -89,7 +111,7 @@ export function formatCeremonyDateShort(startsAt: string): string {
 
 /** <time dateTime> 속성에 넣을 기계 판독용 표기. 예: "2026-05-16T12:00" */
 export function toDateTimeAttribute(startsAt: string): string {
-  const parts = partsOf(new Date(startsAt), {
+  const parts = partsOf(parseCeremonyDate(startsAt), {
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
@@ -117,7 +139,7 @@ export function toDateTimeAttribute(startsAt: string): string {
  * 현재 시각을 인자로 받는 이유는 테스트 가능하게 하기 위해서다.
  */
 export function getDaysUntilCeremony(startsAt: string, now: Date): number {
-  const ceremonyDay = toUtcMidnightOfSeoulDate(new Date(startsAt));
+  const ceremonyDay = toUtcMidnightOfSeoulDate(parseCeremonyDate(startsAt));
   const today = toUtcMidnightOfSeoulDate(now);
 
   return Math.round((ceremonyDay - today) / MS_PER_DAY);

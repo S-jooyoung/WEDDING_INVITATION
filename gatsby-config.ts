@@ -1,9 +1,15 @@
 import type { GatsbyConfig } from "gatsby";
+import { siteConfig } from "./src/config/site";
 
 const config: GatsbyConfig = {
+  /*
+   * 사이트 메타데이터의 출처를 src/config/site.ts 하나로 둔다.
+   * 여기에 값을 따로 적으면 제목과 주소의 진실이 두 곳으로 갈라진다.
+   */
   siteMetadata: {
-    title: "weddingInvitation",
-    siteUrl: "https://www.yourdomain.tld",
+    title: siteConfig.title,
+    description: siteConfig.description,
+    siteUrl: siteConfig.url,
   },
 
   /*

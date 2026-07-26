@@ -29,14 +29,36 @@ export interface SiteConfig {
   };
 }
 
-const DEFAULT_URL = "http://localhost:8000";
+const DEVELOPMENT_URL = "http://localhost:8000";
+
+function resolveSiteUrl(): string {
+  const configured = process.env.GATSBY_SITE_URL?.trim();
+
+  if (configured !== undefined && configured !== "") {
+    return configured.replace(/\/$/, "");
+  }
+
+  /*
+   * 프로덕션 빌드인데 주소가 없으면 OG 태그가 localhost를 가리킨다.
+   * 링크 미리보기가 조용히 깨지므로 빌드 로그에 크게 남긴다.
+   */
+  if (process.env.NODE_ENV === "production") {
+    console.warn(
+      "[site] GATSBY_SITE_URL이 설정되지 않았습니다. " +
+        "링크 미리보기(OG) 이미지와 canonical URL이 localhost를 가리킵니다. " +
+        ".env.example을 참고해 배포 주소를 지정하세요.",
+    );
+  }
+
+  return DEVELOPMENT_URL;
+}
 
 export const siteConfig: SiteConfig = {
   title: "○○○ ♥ ○○○ 결혼합니다",
   description:
     "저희 두 사람이 사랑의 이름으로 지켜나갈 수 있게 앞날을 축복해 주세요.",
-  url: (process.env.GATSBY_SITE_URL ?? DEFAULT_URL).replace(/\/$/, ""),
-  ogImagePath: "/og-image.jpg",
+  url: resolveSiteUrl(),
+  ogImagePath: "/og-image.png",
   locale: "ko_KR",
   kakao: {
     javaScriptKey: process.env.GATSBY_KAKAO_JAVASCRIPT_KEY ?? null,
@@ -46,4 +68,20 @@ export const siteConfig: SiteConfig = {
 /** 사이트 기준 상대 경로를 절대 URL로 바꾼다. OG 태그는 절대 URL을 요구한다. */
 export function toAbsoluteUrl(pathname: string): string {
   return new URL(pathname, `${siteConfig.url}/`).toString();
+}
+
+/**
+ * 하객에게 공유할 주소.
+ *
+ * 브라우저에서는 지금 열려 있는 실제 주소를 쓴다. 빌드 시점 설정에 기대면
+ * 설정을 빠뜨렸을 때 하객의 클립보드에 http://localhost:8000 이 들어간다.
+ * 기존 구현이 실제로 그랬다. 런타임 값이 언제나 정확하므로 이쪽을 우선한다.
+ */
+export function getShareUrl(): string {
+  if (typeof window !== "undefined") {
+    const { origin, pathname } = window.location;
+    return `${origin}${pathname}`;
+  }
+
+  return siteConfig.url;
 }

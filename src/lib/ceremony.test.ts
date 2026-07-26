@@ -33,9 +33,21 @@ describe("formatCeremonyDateTime", () => {
     const originalTimeZone = process.env.TZ;
 
     afterEach(() => {
-      process.env.TZ = originalTimeZone;
+      /*
+       * 원래 TZ가 없었다면 지워야 한다. undefined를 대입하면 문자열
+       * "undefined"가 들어가 이후 테스트의 시간대가 오염된다.
+       */
+      if (originalTimeZone === undefined) {
+        delete process.env.TZ;
+      } else {
+        process.env.TZ = originalTimeZone;
+      }
     });
 
+    /*
+     * 이 테스트는 구현이 Intl에 timeZone을 명시한다는 사실을 고정한다.
+     * 옵션을 빠뜨리면 TZ=UTC에서 "오전 3시"가 나와 여기서 걸린다.
+     */
     it.each(["UTC", "America/New_York", "Asia/Seoul"])(
       "TZ=%s 에서도 한국 시간 기준으로 표기한다",
       (timeZone) => {
@@ -45,6 +57,28 @@ describe("formatCeremonyDateTime", () => {
         );
       },
     );
+  });
+
+  describe("해석할 수 없는 값", () => {
+    /*
+     * Date는 잘못된 입력을 예외 대신 Invalid Date로 돌려주고, 그것을 Intl에
+     * 넘기는 순간 "RangeError: Invalid time value"로 터진다. SSG에서는
+     * 빌드 전체가 실패하므로, 어느 데이터가 잘못됐는지 알려 줘야 한다.
+     */
+    it.each(["", "2026-13-45", "내년 봄", "2026/05/16 12시"])(
+      "%s 를 넘기면 고칠 위치를 알려주며 실패한다",
+      (invalid) => {
+        expect(() => formatCeremonyDateTime(invalid)).toThrow(
+          /예식 일시를 해석할 수 없습니다/,
+        );
+      },
+    );
+
+    it("오류 메시지에 잘못된 입력값을 포함한다", () => {
+      expect(() => formatCeremonyDateTime("2026-13-45")).toThrow(
+        /2026-13-45/,
+      );
+    });
   });
 });
 

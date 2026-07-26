@@ -1,16 +1,21 @@
 import { createGlobalStyle } from "styled-components";
-import HandwritingWoff from "@/assets/fonts/mom_to_daughter.woff";
-import HandwritingWoff2 from "@/assets/fonts/mom_to_daughter.woff2";
+import Handwriting from "@/assets/fonts/mom_to_daughter.subset.woff2";
 
 export const GlobalStyle = createGlobalStyle`
   @font-face {
     font-family: "mom_to_daughter";
-    src: url(${HandwritingWoff2}) format("woff2"),
-         url(${HandwritingWoff}) format("woff");
+    /*
+     * woff2만 제공한다. woff 폴백은 2017년 이전 브라우저를 위한 것인데,
+     * 브라우저는 woff2를 지원하면 woff를 아예 받지 않으므로 사실상 아무도
+     * 내려받지 않는 3.6MB가 저장소에만 남아 있었다.
+     */
+    src: url(${Handwriting}) format("woff2");
     font-weight: normal;
     font-style: normal;
     /* 폰트를 받는 동안 대체 글꼴로 먼저 그린다. 텍스트가 보이지 않는 구간을 없앤다. */
     font-display: swap;
+    /* 한글 음절 영역에만 적용해 다른 문자 때문에 폰트를 받는 일을 막는다. */
+    unicode-range: U+0020-007E, U+3131-3163, U+AC00-D7A3, U+2018-201D, U+300C-300F;
   }
 
   *,

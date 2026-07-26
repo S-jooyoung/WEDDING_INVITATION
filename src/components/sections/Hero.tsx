@@ -1,5 +1,6 @@
 import styled from "styled-components";
 import BackgroundVideo from "@/assets/BackgroundVideo.mp4";
+import BackgroundPoster from "@/assets/BackgroundVideoPoster.webp";
 import { Container } from "@/components/layout/Container";
 import { invitation } from "@/data/invitation";
 import { useDaysUntilCeremony } from "@/hooks/useDaysUntilCeremony";
@@ -40,6 +41,12 @@ export function Hero() {
         loop
         muted
         playsInline
+        /*
+         * poster 덕분에 영상 데이터가 도착하기 전에도 첫 화면이 채워진다.
+         * 32KB짜리 정지 이미지가 490KB 영상보다 훨씬 먼저 그려지므로
+         * LCP가 영상 다운로드에 묶이지 않는다.
+         */
+        poster={BackgroundPoster}
         preload="metadata"
         aria-hidden="true"
         tabIndex={-1}

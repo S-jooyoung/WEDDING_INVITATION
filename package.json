@@ -2,11 +2,17 @@
   "name": "wedding-invitation",
   "version": "1.0.0",
   "private": true,
-  "description": "wedding-invitation",
+  "description": "Gatsby 기반 모바일 청첩장 템플릿",
   "author": "S-jooyoung",
+  "license": "MIT",
   "keywords": [
-    "gatsby"
+    "gatsby",
+    "react",
+    "wedding-invitation"
   ],
+  "engines": {
+    "node": ">=18.0.0 <26"
+  },
   "scripts": {
     "develop": "gatsby develop",
     "start": "gatsby develop",
@@ -15,15 +21,18 @@
     "clean": "gatsby clean"
   },
   "dependencies": {
-    "antd": "^4.20.4",
+    "@ant-design/icons": "^4.8.3",
+    "antd": "^4.24.16",
     "aos": "^2.3.4",
-    "babel-plugin-styled-components": "^2.0.7",
-    "gatsby": "^4.14.0",
-    "gatsby-plugin-styled-components": "^5.14.0",
-    "react": "^17.0.1",
+    "gatsby": "^5.16.1",
+    "gatsby-plugin-styled-components": "^6.16.0",
+    "react": "^18.3.1",
     "react-copy-to-clipboard": "^5.1.0",
-    "react-dom": "^17.0.1",
-    "react-image-gallery": "^1.2.8",
-    "styled-components": "^5.3.5"
+    "react-dom": "^18.3.1",
+    "react-image-gallery": "^1.4.0",
+    "styled-components": "^6.1.19"
+  },
+  "devDependencies": {
+    "babel-plugin-styled-components": "^2.1.4"
   }
 }

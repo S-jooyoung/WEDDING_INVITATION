@@ -33,6 +33,8 @@
     "src/**/*.tsx",
     "gatsby-config.ts",
     "gatsby-node.ts",
+    "gatsby-browser.tsx",
+    "gatsby-ssr.tsx",
     "vitest.config.ts",
     "vitest.setup.ts"
   ],

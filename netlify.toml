@@ -1,0 +1,47 @@
+[build]
+  command = "npm run build"
+  publish = "public"
+
+[build.environment]
+  # .nvmrc와 같은 값을 유지한다. Netlify는 .nvmrc도 읽지만,
+  # 어느 쪽이 적용됐는지 빌드 로그에서 바로 확인되도록 명시한다.
+  NODE_VERSION = "22"
+
+# 파일명에 콘텐츠 해시가 붙는 산출물은 영구 캐시한다.
+# 내용이 바뀌면 파일명이 바뀌므로 무효화를 걱정할 필요가 없다.
+[[headers]]
+  for = "/static/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.js"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.css"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# HTML과 페이지 데이터는 해시가 없으므로 매번 검증해야 한다.
+# 이것을 캐시하면 배포해도 방문자에게 옛 페이지가 남는다.
+[[headers]]
+  for = "/*.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/page-data/*"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+# 청첩장에는 예식장 위치와 계좌번호가 담긴다. 검색 색인은 원하지 않지만
+# robots.txt로 막으면 카카오톡·페이스북 미리보기 봇까지 차단되므로,
+# 헤더로 색인만 거부하고 미리보기 수집은 허용한다.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, follow"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"

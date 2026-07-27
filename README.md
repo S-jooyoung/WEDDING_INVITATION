@@ -277,6 +277,10 @@ GATSBY_SITE_URL=https://your-domain.com   # OG 태그의 canonical URL
 GATSBY_KAKAO_JAVASCRIPT_KEY=              # 비우면 링크 복사만 제공
 ```
 
+Netlify에 배포한다면 `GATSBY_SITE_URL`은 생략해도 됩니다. 빌드 환경의 `URL`
+(미리보기 배포는 `DEPLOY_PRIME_URL`)을 자동으로 읽어 OG 태그에 채웁니다.
+`netlify.toml`에 빌드 명령·Node 버전·캐시 헤더가 함께 들어 있습니다.
+
 카카오 JavaScript 키는 클라이언트 노출을 전제로 발급되는 공개 키입니다
 (도메인 화이트리스트로 보호됩니다). 그럼에도 소스에 박지 않는 이유는, 포크한
 사람이 원저장소의 키로 요청을 보내게 되고 키 교체에 재배포가 강제되기

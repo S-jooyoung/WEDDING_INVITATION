@@ -32,7 +32,18 @@ export interface SiteConfig {
 const DEVELOPMENT_URL = "http://localhost:8000";
 
 function resolveSiteUrl(): string {
-  const configured = process.env.GATSBY_SITE_URL?.trim();
+  /*
+   * 배포 플랫폼이 넣어 주는 주소를 폴백으로 받는다. Netlify는 빌드 환경에
+   * URL(운영)과 DEPLOY_PRIME_URL(미리보기 배포)을 주입한다. 이 값들은
+   * GATSBY_ 접두사가 없어 브라우저 번들에는 실리지 않지만, OG 태그는
+   * 빌드 시점에 확정되므로 그것으로 충분하다. 브라우저에서 필요한 주소는
+   * toAbsoluteUrl과 getShareUrl이 window.location에서 직접 읽는다.
+   */
+  const configured = (
+    process.env.GATSBY_SITE_URL ??
+    process.env.URL ??
+    process.env.DEPLOY_PRIME_URL
+  )?.trim();
 
   if (configured !== undefined && configured !== "") {
     return configured.replace(/\/$/, "");
@@ -69,9 +80,18 @@ export const siteConfig: SiteConfig = {
   },
 };
 
-/** 사이트 기준 상대 경로를 절대 URL로 바꾼다. OG 태그는 절대 URL을 요구한다. */
+/**
+ * 사이트 기준 상대 경로를 절대 URL로 바꾼다. OG 태그는 절대 URL을 요구한다.
+ *
+ * 브라우저에서는 지금 열려 있는 주소를 기준으로 삼는다. 빌드 시점 설정이
+ * 비어 있어도 카카오톡 공유 이미지 같은 런타임 URL이 localhost를 가리키지
+ * 않는다. 서버 렌더에서는 설정값을 쓴다.
+ */
 export function toAbsoluteUrl(pathname: string): string {
-  return new URL(pathname, `${siteConfig.url}/`).toString();
+  const base =
+    typeof window === "undefined" ? siteConfig.url : window.location.origin;
+
+  return new URL(pathname, `${base}/`).toString();
 }
 
 /**

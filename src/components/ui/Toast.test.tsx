@@ -45,6 +45,29 @@ describe("ToastProvider", () => {
     expect(status).toHaveAttribute("aria-live", "polite");
   });
 
+  it("같은 문구를 연달아 알려도 매번 새 노드로 교체한다", () => {
+    renderWithProviders(<Trigger />);
+    const button = screen.getByRole("button", { name: "복사" });
+
+    fireEvent.click(button);
+    const first = screen.getByRole("status").firstElementChild;
+
+    fireEvent.click(button);
+    const second = screen.getByRole("status").firstElementChild;
+
+    /*
+     * 문구만 상태에 두면 같은 값에서 React가 리렌더를 건너뛰어 DOM이 그대로
+     * 남는다. 스크린 리더는 live region의 변경을 신호로 읽으므로, 노드가
+     * 바뀌지 않으면 두 번째 복사부터 아무것도 읽지 않는다.
+     * 계좌를 연달아 복사하는 것이 이 화면의 정상 흐름이다.
+     */
+    expect(first).not.toBeNull();
+    expect(second).not.toBe(first);
+    expect(screen.getByRole("status")).toHaveTextContent(
+      "계좌번호가 복사되었습니다.",
+    );
+  });
+
   it("일정 시간이 지나면 알림을 지운다", () => {
     vi.useFakeTimers();
     renderWithProviders(<Trigger />);

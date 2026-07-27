@@ -107,6 +107,65 @@ describe("Modal", () => {
 
       expect(screen.getByRole("button", { name: "두 번째" })).toHaveFocus();
     });
+
+    /*
+     * 아래 두 건은 실제로 트랩이 뚫렸던 경로다. 다이얼로그는 tabIndex={-1}이라
+     * 여백을 클릭하면 컨테이너 자신이 포커스를 받는데, 이 상태는 first도
+     * last도 아니어서 Tab이 그대로 통과해 포커스가 모달 밖으로 나갔다.
+     */
+    it("여백을 클릭해 컨테이너가 포커스를 받아도 Tab이 밖으로 나가지 않는다", async () => {
+      const user = userEvent.setup();
+      openModal();
+
+      const dialog = screen.getByRole("dialog");
+      dialog.focus();
+      expect(dialog).toHaveFocus();
+
+      await user.tab();
+
+      const active = document.activeElement;
+      expect(active).not.toBe(document.body);
+      expect(dialog.contains(active)).toBe(true);
+    });
+
+    it("여백을 클릭해 컨테이너가 포커스를 받아도 Shift+Tab이 밖으로 나가지 않는다", async () => {
+      const user = userEvent.setup();
+      openModal();
+
+      const dialog = screen.getByRole("dialog");
+      dialog.focus();
+
+      await user.tab({ shift: true });
+
+      expect(dialog.contains(document.activeElement)).toBe(true);
+    });
+  });
+
+  it("포커스가 모달 밖으로 벗어난 뒤에도 ESC가 동작한다", async () => {
+    const user = userEvent.setup();
+    const { onClose } = openModal();
+
+    /*
+     * 키 핸들러가 다이얼로그 요소에 달려 있으면, 포커스가 밖으로 나간 순간
+     * ESC까지 발화하지 않아 키보드 사용자가 모달을 닫을 수단을 잃는다.
+     */
+    document.body.focus();
+    (document.activeElement as HTMLElement | null)?.blur();
+
+    await user.keyboard("{Escape}");
+
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it("열려 있는 동안 알림 영역을 다이얼로그 안으로 옮긴다", () => {
+    openModal();
+
+    /*
+     * aria-modal="true"는 다이얼로그 바깥을 보조기술에서 제외시킨다.
+     * 알림이 밖에 남아 있으면 모달 안에서 일어난 복사 결과가 전달되지 않는다.
+     */
+    const dialog = screen.getByRole("dialog");
+    expect(dialog).toContainElement(screen.getByRole("status"));
   });
 
   it("닫히면 열기 직전에 포커스가 있던 요소로 되돌린다", async () => {

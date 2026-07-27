@@ -1,14 +1,7 @@
-import {
-  useCallback,
-  useEffect,
-  useId,
-  useRef,
-  useState,
-  type KeyboardEvent as ReactKeyboardEvent,
-  type ReactNode,
-} from "react";
+import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import styled from "styled-components";
+import { useToast } from "@/components/ui/Toast";
 
 export interface ModalProps {
   open: boolean;
@@ -53,6 +46,7 @@ export function Modal({
   const descriptionId = useId();
   const dialogRef = useRef<HTMLDivElement>(null);
   const lastFocusedRef = useRef<HTMLElement | null>(null);
+  const { setLiveRegionHost } = useToast();
 
   /* Gatsby는 빌드 시 서버에서 렌더링하므로 document가 없다. */
   const [mounted, setMounted] = useState(false);
@@ -99,10 +93,24 @@ export function Modal({
     };
   }, [open, mounted]);
 
-  const handleKeyDown = useCallback(
-    (event: ReactKeyboardEvent<HTMLDivElement>) => {
+  /*
+   * ESC와 Tab 트랩을 document에서 가로챈다.
+   *
+   * 이전에는 두 핸들러가 다이얼로그 요소의 onKeyDown에 달려 있었다. 그런데
+   * 다이얼로그는 tabIndex={-1}이라 여백을 클릭하면 컨테이너 자신이 포커스를
+   * 받고, 그 상태는 first도 last도 아니므로 Tab이 그대로 통과해 포커스가
+   * 모달 밖으로 나갔다. 포커스가 나가면 다이얼로그의 onKeyDown은 더 이상
+   * 발화하지 않으므로 ESC까지 죽어, 키보드만 쓰는 사용자는 모달을 닫을
+   * 수단이 완전히 사라졌다.
+   *
+   * 캡처 단계에서 듣기 때문에 포커스가 어디에 있든 항상 동작한다.
+   */
+  useEffect(() => {
+    if (!open || !mounted) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
-        event.stopPropagation();
+        event.preventDefault();
         onClose();
         return;
       }
@@ -117,19 +125,55 @@ export function Modal({
       );
       const first = focusables[0];
       const last = focusables[focusables.length - 1];
-      if (first === undefined || last === undefined) return;
+
+      /* 포커스를 줄 자식이 없으면 컨테이너 자신에 묶어 둔다. */
+      if (first === undefined || last === undefined) {
+        event.preventDefault();
+        dialog.focus();
+        return;
+      }
+
+      const active = document.activeElement;
+      const isInsideChild =
+        active instanceof Node && active !== dialog && dialog.contains(active);
+
+      /* 포커스가 모달 밖이거나 컨테이너 자신에 있으면 안쪽 끝으로 되돌린다. */
+      if (!isInsideChild) {
+        event.preventDefault();
+        (event.shiftKey ? last : first).focus();
+        return;
+      }
 
       /* 양 끝에서 Tab이 모달 밖으로 나가지 않도록 반대편으로 감는다. */
-      if (event.shiftKey && document.activeElement === first) {
+      if (event.shiftKey && active === first) {
         event.preventDefault();
         last.focus();
-      } else if (!event.shiftKey && document.activeElement === last) {
+      } else if (!event.shiftKey && active === last) {
         event.preventDefault();
         first.focus();
       }
-    },
-    [onClose],
-  );
+    };
+
+    document.addEventListener("keydown", handleKeyDown, true);
+    return () => document.removeEventListener("keydown", handleKeyDown, true);
+  }, [open, mounted, onClose]);
+
+  /*
+   * 알림 영역을 다이얼로그 안으로 옮긴다.
+   *
+   * aria-modal="true"는 다이얼로그 바깥 전체를 보조기술에서 제외하도록
+   * 지시한다. 계좌번호 복사는 전부 이 모달 안에서 일어나므로, 알림이 앱
+   * 트리에 그대로 있으면 성공도 실패도 스크린 리더에 전달되지 않는다.
+   */
+  useEffect(() => {
+    if (!open || !mounted) return;
+
+    const dialog = dialogRef.current;
+    if (dialog === null) return;
+
+    setLiveRegionHost(dialog);
+    return () => setLiveRegionHost(null);
+  }, [open, mounted, setLiveRegionHost]);
 
   if (!mounted || !open) return null;
 
@@ -148,7 +192,6 @@ export function Modal({
         aria-labelledby={titleId}
         aria-describedby={description === undefined ? undefined : descriptionId}
         tabIndex={-1}
-        onKeyDown={handleKeyDown}
       >
         <Header>
           <Title id={titleId}>{title}</Title>

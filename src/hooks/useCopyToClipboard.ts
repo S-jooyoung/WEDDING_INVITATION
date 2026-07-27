@@ -41,6 +41,14 @@ function copyWithTextArea(text: string): boolean {
   textArea.style.top = "-9999px";
   textArea.style.opacity = "0";
 
+  /*
+   * select()는 대상 요소에 포커스를 옮긴다. 이 textarea는 body 직속이라
+   * 모달이 열려 있을 때 포커스가 다이얼로그 밖으로 빠져나가고, 요소를
+   * 제거하고 나면 포커스가 body에 남는다. 그 상태에서는 포커스 트랩과
+   * ESC가 함께 무력해지므로 원래 위치로 되돌려 놓는다.
+   */
+  const previouslyFocused = document.activeElement;
+
   document.body.appendChild(textArea);
 
   try {
@@ -50,5 +58,8 @@ function copyWithTextArea(text: string): boolean {
     return false;
   } finally {
     document.body.removeChild(textArea);
+    if (previouslyFocused instanceof HTMLElement) {
+      previouslyFocused.focus();
+    }
   }
 }

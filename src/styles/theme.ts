@@ -77,6 +77,8 @@ const motion = {
 } as const;
 
 const zIndex = {
+  /* 본문 위에 떠 있는 컨트롤(배경음악 토글 등) */
+  floating: 50,
   modal: 100,
   toast: 200,
 } as const;

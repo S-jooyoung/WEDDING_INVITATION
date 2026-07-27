@@ -2,8 +2,7 @@ import { useState } from "react";
 import styled from "styled-components";
 import { Container } from "@/components/layout/Container";
 import { Section } from "@/components/layout/Section";
-import { Modal, useToast } from "@/components/ui";
-import { Reveal } from "@/components/ui/Reveal";
+import { Modal, Reveal, useToast } from "@/components/ui";
 import { invitation } from "@/data/invitation";
 import { useCopyToClipboard } from "@/hooks/useCopyToClipboard";
 import { formatAccountForCopy, selectGiftAccountGroups } from "@/lib/gift";
@@ -114,9 +113,7 @@ function AccountRow({ entry }: { entry: GiftAccountEntry }) {
         onClick={handleCopy}
         aria-label={`${entry.relation} ${entry.name}의 계좌번호 ${entry.account.bank} ${entry.account.number} 복사`}
       >
-        <span aria-hidden="true">
-          {entry.account.bank} {entry.account.number}
-        </span>
+        {entry.account.bank} {entry.account.number}
       </CopyButton>
     </Row>
   );

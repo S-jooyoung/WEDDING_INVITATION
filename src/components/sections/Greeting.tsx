@@ -1,8 +1,11 @@
 import styled from "styled-components";
 import { Container } from "@/components/layout/Container";
 import { Section } from "@/components/layout/Section";
-import { Reveal } from "@/components/ui/Reveal";
+import { Reveal } from "@/components/ui";
 import { invitation } from "@/data/invitation";
+
+/** 문단이 차례로 떠오르도록 주는 간격. */
+const STAGGER_DELAY_MS = 80;
 
 /** 인사말과 혼주 소개. */
 export function Greeting() {
@@ -13,14 +16,14 @@ export function Greeting() {
       <Section title={greeting.heading} ornament>
         <Message>
           {greeting.paragraphs.map((paragraph, index) => (
-            <Reveal key={paragraph} delay={index * 80}>
+            <Reveal key={paragraph} delay={index * STAGGER_DELAY_MS}>
               <p>{paragraph}</p>
             </Reveal>
           ))}
         </Message>
 
-        <Reveal delay={greeting.paragraphs.length * 80}>
-          <Families>
+        <Reveal delay={greeting.paragraphs.length * STAGGER_DELAY_MS}>
+          <Families role="list">
             <li>
               {couple.groom.father.name} · {couple.groom.mother.name}의{" "}
               {couple.groom.childOrder} {couple.groom.name}

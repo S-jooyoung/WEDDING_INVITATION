@@ -2,7 +2,7 @@ import styled from "styled-components";
 import QuotePaper from "@/assets/Quote.png";
 import { Container } from "@/components/layout/Container";
 import { Section } from "@/components/layout/Section";
-import { Reveal } from "@/components/ui/Reveal";
+import { Reveal } from "@/components/ui";
 import { invitation } from "@/data/invitation";
 
 /**

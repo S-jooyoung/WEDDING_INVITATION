@@ -43,6 +43,12 @@ export const GlobalStyle = createGlobalStyle`
     margin: 0;
   }
 
+  /*
+   * Safari는 list-style: none인 목록에서 list role을 제거한다. 이 청첩장의
+   * 주 유입 경로가 iOS 인앱 브라우저이므로, 마커를 지우면 "사진 6장"이나
+   * 교통편 항목 수 같은 정보가 통째로 사라진다.
+   * 마커를 지우는 목록에는 반드시 role="list"를 함께 붙인다.
+   */
   ul {
     margin: 0;
     padding: 0;

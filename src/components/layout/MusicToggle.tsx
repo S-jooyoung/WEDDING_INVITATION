@@ -69,11 +69,16 @@ export function MusicToggle({ src, label = "배경음악" }: MusicToggleProps) {
           가사 없는 연주곡이라 캡션 트랙이 없다. 대신 재생 여부를 버튼의
           aria-pressed로 알리고, 소리는 언제든 끌 수 있게 했다. */}
       <audio ref={audioRef} src={src} loop preload="none" />
+      {/*
+        aria-pressed가 이미 켜짐/꺼짐을 전달하므로 이름은 고정한다.
+        이름까지 "끄기"로 바꾸면 스크린 리더가 "배경음악 끄기, 선택됨"으로
+        읽어, 이름은 앞으로 할 일을 말하고 상태는 현재를 말하는 이중 부정이 된다.
+      */}
       <ToggleButton
         type="button"
         onClick={toggle}
         aria-pressed={playing}
-        aria-label={playing ? `${label} 끄기` : `${label} 켜기`}
+        aria-label={label}
       >
         <SpeakerIcon muted={!playing} />
       </ToggleButton>
@@ -120,7 +125,7 @@ const ToggleButton = styled.button`
   position: fixed;
   top: ${({ theme }) => theme.space[4]};
   right: ${({ theme }) => theme.space[4]};
-  z-index: ${({ theme }) => theme.zIndex.modal - 1};
+  z-index: ${({ theme }) => theme.zIndex.floating};
   display: inline-flex;
   align-items: center;
   justify-content: center;

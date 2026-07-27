@@ -8,10 +8,21 @@ const ROUGHMAP_SCRIPT = `https://t1.daumcdn.net/kakaomapweb/place/jscss/roughmap
 
 export type MapStatus = "idle" | "loading" | "ready" | "failed";
 
-/** 임베드 컨테이너의 id. 카카오 스크립트가 이 규칙으로 요소를 찾는다. */
-export function getMapContainerId(embed: KakaoMapEmbed): string {
-  return `daumRoughmapContainer${embed.timestamp}`;
+/**
+ * 임베드 컨테이너가 가져야 하는 속성.
+ *
+ * 카카오 스크립트는 정해진 id 규칙과 클래스명으로 요소를 찾는다. 이 계약을
+ * 호출부에 하드코딩하면 벤더 연동을 바꿀 때 컴포넌트·훅·CSS 세 곳을 동시에
+ * 고쳐야 하므로, 훅이 함께 넘겨준다.
+ */
+export interface MapContainerProps {
+  readonly id: string;
+  readonly className: string;
 }
+
+/** 임베드 높이. src/styles/index.css의 max-height와 같은 값이어야 한다. */
+const MAP_HEIGHT = "240";
+const MAP_WIDTH = "640";
 
 /**
  * 카카오맵 지도 퍼가기 임베드를 렌더링한다.
@@ -31,7 +42,10 @@ export function getMapContainerId(embed: KakaoMapEmbed): string {
  *    존재하면 곧바로 return했는데, 전역 객체는 남아 있고 실제 지도는
  *    사라진 상태(재마운트)에서 지도가 영영 다시 그려지지 않았다.
  */
-export function useKakaoRoughMap(embed: KakaoMapEmbed | null): MapStatus {
+export function useKakaoRoughMap(embed: KakaoMapEmbed | null): {
+  status: MapStatus;
+  containerProps: MapContainerProps | null;
+} {
   const [status, setStatus] = useState<MapStatus>(
     embed === null ? "idle" : "loading",
   );
@@ -67,8 +81,8 @@ export function useKakaoRoughMap(embed: KakaoMapEmbed | null): MapStatus {
         new Lander({
           timestamp: embed.timestamp,
           key: embed.key,
-          mapWidth: "640",
-          mapHeight: "360",
+          mapWidth: MAP_WIDTH,
+          mapHeight: MAP_HEIGHT,
         }).render();
 
         setStatus("ready");
@@ -82,5 +96,13 @@ export function useKakaoRoughMap(embed: KakaoMapEmbed | null): MapStatus {
     };
   }, [embed]);
 
-  return status;
+  const containerProps: MapContainerProps | null =
+    embed === null
+      ? null
+      : {
+          id: `daumRoughmapContainer${embed.timestamp}`,
+          className: "root_daum_roughmap root_daum_roughmap_landing",
+        };
+
+  return { status, containerProps };
 }

@@ -21,13 +21,20 @@ export function Gallery() {
   return (
     <Container>
       <Section title="우리의 아름다운 순간">
+        {/*
+          이 영역은 이미 Section이 만든 section 랜드마크 안에 있으므로
+          role="region"을 또 두면 같은 사진을 가리키는 랜드마크가 둘이 된다.
+          group으로 낮춘다. 이름에 "좌우로 넘기세요" 같은 조작 안내를 넣지
+          않는 이유는, 포커스가 닿을 때마다 읽히는 데다 키보드 사용자에게는
+          해당하지 않는 동작이기 때문이다.
+        */}
         <Track
           /* 스크롤 컨테이너에 초점을 줘야 키보드로 좌우 탐색이 가능하다. */
           tabIndex={0}
-          role="region"
-          aria-label={`웨딩 사진 ${gallery.length}장. 좌우로 넘겨 보세요.`}
+          role="group"
+          aria-label="웨딩 사진"
         >
-          <Slides>
+          <Slides role="list">
             {gallery.map((photo, index) => (
               <Slide key={photo.src}>
                 <Photo

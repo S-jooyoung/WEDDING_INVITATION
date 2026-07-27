@@ -1,7 +1,7 @@
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 import styled, { css } from "styled-components";
 
-export type ButtonVariant = "kakao" | "outline" | "quiet";
+export type ButtonVariant = "kakao" | "outline";
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
@@ -32,7 +32,8 @@ export function Button({
       $fullWidth={fullWidth}
       {...rest}
     >
-      {icon !== undefined && <IconSlot aria-hidden="true">{icon}</IconSlot>}
+      {/* 아이콘 SVG 자체가 이미 aria-hidden이므로 여기서 또 감추지 않는다. */}
+      {icon !== undefined && <IconSlot>{icon}</IconSlot>}
       {children}
     </StyledButton>
   );
@@ -55,16 +56,6 @@ const variantStyles = {
 
     &:hover:not(:disabled) {
       filter: brightness(0.95);
-    }
-  `,
-  quiet: css`
-    background-color: transparent;
-    color: ${({ theme }) => theme.color.text};
-    border-color: transparent;
-    padding: ${({ theme }) => theme.space[1]} ${({ theme }) => theme.space[2]};
-
-    &:hover:not(:disabled) {
-      background-color: ${({ theme }) => theme.color.accentSurface};
     }
   `,
 } as const satisfies Record<ButtonVariant, ReturnType<typeof css>>;

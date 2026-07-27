@@ -110,7 +110,7 @@ export interface Invitation {
  *
  * 도메인 모델(Partner/Parent)은 가족 관계를 표현하고,
  * 이 타입은 그것을 "계좌 목록"이라는 화면의 관심사로 평탄화한 결과다.
- * 파생은 selectGiftAccounts()가 담당한다.
+ * 파생은 selectGiftAccountGroups()가 담당한다.
  */
 export interface GiftAccountEntry {
   /** 예: "신랑", "아버지", "어머니" */

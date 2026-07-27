@@ -7,7 +7,7 @@
   <img alt="License" src="https://img.shields.io/badge/license-MIT-blue" />
 </p>
 
-카카오톡으로 공유하는 모바일 청첩장입니다. **파일 하나만 고치면** 바로 쓸 수 있습니다.
+**파일 하나만 고치면** 바로 쓸 수 있는 템플릿이에요.
 
 마음에 드셨다면 ⭐️ Star와 Fork 부탁드립니다 😊
 
@@ -15,7 +15,7 @@
 
 ---
 
-## 담긴 기능
+## 기능
 
 - 신랑·신부 소개와 인사말
 - 예식 일시 · 예식장 안내 (카카오맵 · 길찾기 링크)
@@ -185,7 +185,7 @@ background: "#efebe9",   // 페이지 배경
 
 ## 배포하기
 
-### Netlify (가장 간단합니다)
+### Netlify (추천)
 
 1. 이 저장소를 Fork
 2. [Netlify](https://app.netlify.com)에서 **Add new site → Import an existing project**
@@ -194,8 +194,7 @@ background: "#efebe9",   // 페이지 배경
 
 `GATSBY_SITE_URL`은 넣지 않으셔도 됩니다. Netlify가 배포 주소를 자동으로 알려 줍니다.
 
-자세한 과정은 [Gatsby 테마로 모바일 결혼 청첩장 만들기](https://joy.pe.kr/gatsby-wedding-deploy/)를
-참고하세요.
+자세한 과정은 [Gatsby 테마로 모바일 결혼 청첩장 만들기](https://joy.pe.kr/gatsby-wedding-deploy/)를 참고하세요.
 
 ### Vercel · GitHub Pages
 
@@ -203,47 +202,29 @@ background: "#efebe9",   // 페이지 배경
 
 ---
 
-## 자주 묻는 것
+## 자주 묻는 질문
 
 **Q. 신랑측만 계좌를 넣고 싶어요**
+
 신부측 `account`를 전부 `null`로 두시면 신부측 버튼이 나오지 않습니다.
 
 **Q. 배경음악을 빼고 싶어요**
+
 [`src/pages/index.tsx`](./src/pages/index.tsx)에서 `<MusicToggle />` 한 줄을 지우세요.
 
 **Q. 사진첩을 빼고 싶어요**
+
 같은 파일에서 `<Gallery />` 한 줄을 지우세요. 다른 섹션도 같은 방식입니다.
 
 **Q. 설치가 안 돼요**
-Node 버전을 확인해 주세요. `node -v`가 20 미만이면 [nvm](https://github.com/nvm-sh/nvm)으로
-올리시거나, 이 폴더에서 `nvm use`를 실행하시면 됩니다.
+
+Node 버전을 확인해 주세요. `node -v`가 20 미만이면 [nvm](https://github.com/nvm-sh/nvm)으로 올리시거나, 이 폴더에서 `nvm use`를 실행하시면 됩니다.
 
 ---
 
-## 기술 스택
+## 코드 없이 만들고 싶으시다면!
 
-Gatsby 5 · React 18 · TypeScript · styled-components
-
-런타임 의존성을 5개로 유지하고 UI 컴포넌트를 직접 구현했습니다.
-모달 포커스 트랩, 스크린 리더 알림, 색 대비 같은 접근성 요구사항을 반영했고
-Vitest 테스트 79건을 갖추고 있습니다.
-
-```bash
-npm run validate    # 타입 검사 + 린트 + 테스트
-npm test
-npm run build
-```
-
-설계 판단과 구현 배경은 커밋 히스토리에 정리해 두었습니다.
-
----
-
-## 코드 없이 만들고 싶으시다면
-
-이 템플릿은 직접 코드를 고치고 배포까지 하셔야 합니다.
-그 과정이 부담스러우시다면 **[아름 (Areum)](https://www.areum.co.kr/)** 을 추천드립니다.
-
-무료로 모바일 청첩장을 만들 수 있는 서비스입니다.
+양질의 모바일 청첩장을 간단하게 사용하고 싶으시다면 무료 서비스 **[아름 (Areum)](https://www.areum.co.kr/)** 을 추천드립니다.
 
 - 테마 15종 · 워터마크 없음
 - 방명록과 RSVP로 참석 여부 확인

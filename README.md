@@ -1,318 +1,246 @@
-# 모바일 청첩장
+# 모바일 청첩장 템플릿
 
-Gatsby · TypeScript로 만든 모바일 청첩장 템플릿입니다.
-`src/data/invitation.ts` 한 파일만 고치면 그대로 사용할 수 있습니다.
+<p>
+  <img alt="Gatsby" src="https://img.shields.io/badge/Gatsby-5-663399?logo=gatsby&logoColor=white" />
+  <img alt="React" src="https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black" />
+  <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white" />
+  <img alt="License" src="https://img.shields.io/badge/license-MIT-blue" />
+</p>
+
+카카오톡으로 공유하는 모바일 청첩장입니다. **파일 하나만 고치면** 바로 쓸 수 있습니다.
+
+마음에 드셨다면 ⭐️ Star와 Fork 부탁드립니다 😊
 
 **미리 보기** — https://wedding-templete.netlify.app/
 
 ---
 
-## 무엇을 다루는 프로젝트인가
+## 담긴 기능
 
-카카오톡으로 링크가 전달되어 모바일에서 열리는 정적 사이트입니다.
-페이지는 한 장뿐이지만, 그래서 오히려 다음 문제들이 전면에 드러납니다.
-
-- **첫 화면 로딩** — 3G/LTE 환경에서 열리고, 하객은 기다려 주지 않습니다.
-- **링크 미리보기** — 유통 경로가 메신저이므로 OG 카드가 곧 첫인상입니다.
-- **접근성** — 하객 연령대가 넓습니다. 스크린 리더와 키보드만으로도 계좌번호에
-  도달할 수 있어야 합니다.
-- **외부 SDK 의존** — 카카오맵과 카카오 공유 SDK가 실패해도 청첩장은 살아 있어야
-  합니다.
-
-아래는 2022년에 작성한 초기 구현을 다시 손보며 내린 판단들입니다.
-
----
-
-## 기술적 의사결정
-
-### 1. UI 라이브러리(antd)를 걷어내고 직접 구현했다
-
-청첩장이 antd에서 실제로 쓰는 것은 `Divider` · `Button` · `Modal` · `message`
-넷뿐인데, 그 대가로 `antd/dist/antd.css` 전체를 렌더 블로킹으로 받고 있었습니다.
-게다가 대부분의 기본 스타일을 `!important`로 덮어쓰는 구조였습니다.
-
-직접 만들면서 antd가 대신 해주던 요구사항을 명시적으로 다뤘습니다.
-특히 모달은 "떠 있는 상자"가 아니라 아래 규약을 지켜야 비로소 모달입니다.
-
-- 열리면 포커스가 안으로 들어가고 Tab이 밖으로 새지 않는다
-- ESC로 닫히고, 닫히면 열기 직전 요소로 포커스가 돌아간다
-- `role="dialog"` · `aria-modal` · 제목/설명 연결
-- 열려 있는 동안 배경이 스크롤되지 않는다
-
-구현 중 테스트가 실제 결함을 잡았습니다. portal 렌더용 `mounted` 상태가
-두 번째 렌더에서 `true`가 되는데 포커스 effect의 의존성이 `[open]`뿐이라,
-ref가 채워진 시점에 effect가 다시 돌지 않아 포커스가 끝내 `body`에 머물렀습니다.
-
-> 런타임 의존성 10개 → 5개 (npm 패키지 63개 제거)
-
-### 2. 문자열이 아니라 도메인을 모델링했다
-
-기존 `config.js`는 17개의 평면 문자열 상수였습니다. 신랑/신부 × 본인/부/모 ×
-이름/계좌라는 명백한 구조가 `GROOM_FATHER_ACCOUNT_NUMBER`라는 **이름에만**
-존재하고 타입에는 없었습니다.
-
-그 결과 축의금 컴포넌트가 12개 상수를 개별로 import해 같은 마크업을 두 번
-복사했고, 그 복사본은 이미 어긋나 있었습니다. 한쪽은 `모 : {이름}`,
-다른 쪽은 `모 :{이름}`으로 공백이 빠져 있었습니다.
-
-```ts
-// 관계를 타입으로 표현하고
-interface Partner {
-  name: string;
-  childOrder: string;
-  father: Parent;
-  mother: Parent;
-  account: Account | null; // 계좌를 공개하지 않는 혼주가 실제로 있다
-}
-
-// 화면이 필요로 하는 형태는 파생시킨다
-selectGiftAccountGroups(couple): GiftAccountGroup[]
-```
-
-파생을 컴포넌트 밖으로 꺼내니 축의금 섹션은 그룹 배열을 순회만 하면 됩니다.
-
-### 3. 예식 일시를 ISO 8601로 두고 표기를 파생시켰다
-
-기존 값은 `"1970년 01월 01일, 목요일 오전 12시 00분"`이라는 사람이 손으로 쓴
-완성된 문자열이었습니다. 날짜만 고치고 요일을 안 고치면 틀린 청첩장이 그대로
-나가지만, 코드는 그것을 알 방법이 없습니다.
-
-이제 `startsAt: "2026-05-16T12:00:00+09:00"` 하나만 두고 요일과 오전/오후를
-`Intl`로 파생시킵니다. 사람이 요일을 계산하지 않으므로 어긋날 수 없습니다.
-
-다만 **오전/오후만은 `Intl`의 `dayPeriod`를 쓰지 않습니다.** `ko-KR`의
-`dayPeriod`는 실행 환경이 탑재한 CLDR 버전에 따라 "오후"가 되기도 하고 "PM"이
-되기도 하며, Node 22(full-icu)는 실제로 "PM"을 반환합니다. 청첩장 문구가 런타임
-환경에 따라 달라지면 안 되므로 24시간 값에서 직접 계산합니다.
-이 문제는 시간대 이식성 테스트가 검출했습니다.
-
-### 4. 첫 화면 전송량 946 KiB (gzip 693 KiB)
-
-아래 수치는 모두 **KiB(1024바이트) 기준, 압축 전 원본 크기**입니다.
-`gatsby clean && gatsby build` 산출물을 파일 단위로 실측했습니다.
-
-에셋별 감축:
-
-| 항목            |   이전 |      이후 | 방법                                       |
-| --------------- | -----: | --------: | ------------------------------------------ |
-| 손글씨 폰트     | 6.2MiB | 525.0 KiB | KS X 1001 2,350자 서브셋, woff 폴백 제거   |
-| 갤러리 사진 6장 | 2.8MiB | 273.2 KiB | 6000×4000 → 1200px 재인코딩, 첫 장 외 lazy |
-| 배경 영상       | 1.8MiB | 479.1 KiB | 720px/CRF32 재인코딩, poster 추가          |
-| 배경 음악       | 1.7MiB |    1.7MiB | 파일은 그대로, 전송 시점만 변경            |
-
-로딩 시점을 나눈 결과 실제 전송량:
-
-| 시점                |      원본 |      gzip | 내용                               |
-| ------------------- | --------: | --------: | ---------------------------------- |
-| **첫 화면**         | **946.1** | **692.8** | 아래 내역 참조                     |
-| 갤러리 스크롤 시    |     245.4 |         — | 나머지 사진 5장 (`loading="lazy"`) |
-| 인용구 도달 시      |     525.0 |         — | 손글씨 폰트                        |
-| 재생 버튼을 누를 때 |    1759.0 |         — | 배경 음악 (`preload="none"`)       |
-
-첫 화면 946.1 KiB의 내역:
-
-| 리소스                               |  원본 |  gzip |
-| ------------------------------------ | ----: | ----: |
-| `BackgroundVideo.mp4` (autoplay)     | 479.1 | 479.1 |
-| `framework.js` (React)               | 137.7 |  44.6 |
-| `app.js` (Gatsby 런타임)             | 118.1 |  41.4 |
-| `index.html`                         |  57.7 |  12.5 |
-| `component---src-pages-index-tsx.js` |  54.2 |  18.6 |
-| `GroovePaper.png` (배경 패턴)        |  35.5 |  35.5 |
-| `BackgroundVideoPoster.webp`         |  31.4 |  31.4 |
-| `Gallery_Photo_1.webp` (eager)       |  27.7 |  27.7 |
-| `webpack-runtime.js`                 |   4.7 |   2.1 |
-
-> 실제 배포(Netlify)는 Brotli를 적용하므로 텍스트 리소스는 gzip보다 더 줄어듭니다.
-> 미디어(mp4/webp/png)는 이미 압축된 형식이라 변화가 없습니다.
-
-**이전 상태는 정확히 측정할 수 없습니다.** Gatsby 4가 Node 22에서 설치되지 않아
-재현 빌드가 불가능하기 때문입니다. 다만 위 에셋이 전부 즉시 로드됐고
-`antd/dist/antd.css`(674.5 KiB, gzip 70.6 KiB)가 렌더 블로킹으로 얹혔으므로
-**9 MiB를 넘었을 것으로 추정**합니다. 이 값만 추정이고 나머지는 실측입니다.
-
-몇 가지 판단 근거입니다.
-
-- **폰트를 실사용 문자로만 줄이지 않은 이유** — 더 작아지지만, 템플릿 사용자가
-  인용구를 고치는 순간 폰트가 무용지물이 됩니다. 상용 음절 집합을 유지했습니다.
-- **`woff` 삭제** — 브라우저는 `woff2`를 지원하면 `woff`를 아예 요청하지 않으므로,
-  아무도 내려받지 않는 3.4 MiB가 저장소에만 남아 있었습니다.
-- **이미지에서 중요한 것은 파일 크기만이 아니다** — 6000×4000 이미지 한 장의
-  디코딩 메모리는 약 96 MB입니다. 모바일에서는 이쪽이 더 치명적입니다.
-- **라이브러리를 걷어냈으면 그 기능도 대신해야 한다** — 갤러리를 scroll-snap으로
-  바꾸면서 스와이프는 네이티브 스크롤로 대체됐지만, 라이브러리가 제공하던 좌우
-  이동과 현재 위치 표시는 함께 사라졌습니다. 마우스 사용자는 사진이 더 있다는
-  사실조차 알 수 없었습니다. 이전/다음 버튼과 위치 인디케이터를 직접 붙였습니다.
-- **음악은 파일을 줄이지 않았다** — 이미 80kbps로 인코딩돼 있어 더 줄이면 음질이
-  눈에 띄게 나빠집니다. 대신 전송 시점을 옮겼습니다. 기존에는 자동재생 정책에
-  막혀 재생되지도 않으면서 1.7 MiB를 내려받았고, 멈출 수단이 없는 소리는
-  WCAG 1.4.2 위반이기도 했습니다.
-
-재현 절차는 [`scripts/`](./scripts)에 남겨 두었습니다.
-
-### 5. 실패를 상태로 표현했다
-
-외부 SDK는 실패합니다. 기존 구현은 실패를 감지할 방법 자체가 없었습니다.
-
-- 카카오맵 스크립트가 실패하면 지도 자리가 빈 칸으로 남았습니다. 하객은 예식장
-  위치를 확인할 방법이 없고, 코드도 실패 사실을 몰랐습니다.
-  → `useKakaoRoughMap`이 `loading | ready | failed`를 돌려주고, 실패 시 카카오맵
-  검색 링크로 대체합니다.
-- `window.Kakao`가 없으면 공유 버튼이 조용히 아무것도 하지 않았습니다.
-  → 로드 실패를 잡아 링크 복사를 안내합니다. 키가 설정되지 않았으면 버튼 자체를
-  그리지 않습니다.
-- 클립보드 복사는 성공 여부와 무관하게 항상 "복사되었습니다"를 띄웠습니다.
-  `CopyToClipboard`의 `onCopy`가 아니라 자식 버튼의 `onClick`에 토스트를 달아
-  둔 탓입니다. 계좌번호에서 이 구분은 금전 사고로 이어집니다.
-  → 성공 여부를 `boolean`으로 돌려주고 호출부가 메시지를 고릅니다.
-
-문자열을 `<script>`로 주입해 실행하던 지도 초기화도 직접 호출로 바꿨습니다.
-`eval`과 다를 바 없고, 실행 실패를 감지할 수도 없었습니다.
-
-### 6. 접근성은 나중에 붙이는 기능이 아니다
-
-기존 마크업은 전부 `<div>`와 `<p>`였고, 랜드마크와 헤딩이 하나도 없었습니다.
-스크린 리더 사용자는 제목 목록으로 문서를 훑고 원하는 지점으로 건너뛰는데,
-그 목록이 비어 있으면 처음부터 끝까지 순차로 듣는 수밖에 없습니다.
-
-- `main` / `header` / `section` / `footer` + `h1`~`h3` 계층 부여
-- 클릭 가능한 `styled.div` → `button`. 계좌번호에 이르는 유일한 경로가 마우스
-  클릭이었습니다.
-- 장식 이미지에 `alt=""`. 속성이 아예 없으면 스크린 리더가 파일 경로를 읽습니다.
-- 클립보드 결과를 `role="status"` + `aria-live` 영역으로 전달
-- 강조색 `#d97d83` → `#a8434a`. 기존 색은 배경 대비 **2.46:1**로 WCAG AA 본문
-  기준(4.5:1)은 물론 큰 글씨 기준(3:1)에도 미달했습니다. 색조를 유지하고 명도만
-  낮춰 4.97:1을 확보했습니다.
-- `prefers-reduced-motion` 대응. 전정기관 장애가 있는 사용자에게 스크롤
-  애니메이션은 어지럼증을 유발합니다.
-
-### 7. 도구가 잡을 수 있는 것은 사람이 보지 않는다
-
-ESLint를 도입하자마자 실제 결함이 검출됐습니다.
-
-- `useEffect(InstallScript, [InstallScript])` — 매 렌더 재생성되는 함수가
-  의존성에 들어가 사실상 의존성이 없는 상태
-- `AOS.init()`의 의존성 배열 누락 — 매 렌더 재초기화
-- `<audio>` 캡션 트랙 누락
-- 참조되지 않는 import
-
-`document.body.romoveChile(script)` 오타도 있었습니다. cleanup이 실행되는 순간
-`TypeError`를 던지는 코드였습니다.
-
-CI에는 **빌드를 반드시 포함**시켰습니다. SSR에서만 드러나는 오류는 개발
-서버에서 전혀 나타나지 않습니다. 이번 작업에서도 `tsc`는 통과하는데
-`gatsby build`만 `ReferenceError: React is not defined`로 실패하는 일이
-있었습니다. (원인은 Gatsby의 기본 JSX 런타임이 `classic`이라는 것이었고,
-`tsconfig`의 `"jsx": "react-jsx"`는 타입 검사에만 적용되어 이 불일치를 가립니다.)
-
----
-
-## 기술 스택
-
-| 영역       | 선택                                                         |
-| ---------- | ------------------------------------------------------------ |
-| 프레임워크 | Gatsby 5 (정적 생성)                                         |
-| 언어       | TypeScript (strict, `noUncheckedIndexedAccess`)              |
-| 스타일     | styled-components 6 + 디자인 토큰                            |
-| 테스트     | Vitest + React Testing Library (79건)                        |
-| 품질       | ESLint 9 (flat config, `jsx-a11y`, `react-hooks`) · Prettier |
-| CI         | GitHub Actions — 타입 · 린트 · 포맷 · 테스트 · 빌드          |
-
-런타임 의존성은 `gatsby`, `react`, `react-dom`, `styled-components`,
-`gatsby-plugin-styled-components`, `gatsby-plugin-manifest` 뿐입니다.
-
----
-
-## 구조
-
-```
-src/
-├── data/invitation.ts        # 청첩장 내용 — 사용자가 고치는 유일한 파일
-├── config/site.ts            # 배포·외부 연동 설정 (환경 변수)
-├── types/                    # 도메인 모델, 외부 SDK 타입 선언
-├── lib/                      # 순수 로직 (날짜 파생, 계좌 파생, SDK 로더)
-├── hooks/                    # 부수효과 격리 (클립보드, 지도, 뷰포트 감지)
-├── components/
-│   ├── ui/                   # 프리미티브 (Modal, Button, Toast, …)
-│   ├── layout/               # 골격 (Section, Container, MusicToggle)
-│   └── sections/             # 청첩장 각 단락
-├── providers/RootProvider.tsx
-└── pages/
-```
-
-경계의 기준은 **부수효과를 어디까지 밀어냈는가**입니다.
-`lib/`는 순수 함수라 테스트에 DOM이 필요 없고, 외부 세계와 닿는 부분은
-전부 `hooks/`에 모여 있습니다.
+- 신랑·신부 소개와 인사말
+- 예식 일시 · 예식장 안내 (카카오맵 · 길찾기 링크)
+- 사진첩 (스와이프 · 좌우 이동 · 위치 표시)
+- 축의금 계좌 안내 (누르면 클립보드로 복사)
+- 카카오톡 공유 · 링크 복사
+- 배경음악 켜기/끄기
+- 링크 미리보기 카드 (카카오톡 · 페이스북 · 트위터)
 
 ---
 
 ## 시작하기
 
+Node 20 이상이 필요합니다 ([`.nvmrc`](./.nvmrc) 기준 22 권장).
+
 ```bash
+git clone https://github.com/S-jooyoung/WEDDING_INVITATION.git
+cd WEDDING_INVITATION
+
 npm install
 npm start          # http://localhost:8000
 ```
 
-Node 22를 사용합니다 (`.nvmrc`).
+---
 
-### 커스터마이징
+## 커스터마이징
 
-**1. 청첩장 내용** — [`src/data/invitation.ts`](./src/data/invitation.ts)
-한 파일만 고치면 됩니다. 신랑·신부 정보, 예식 일시, 예식장, 인사말, 인용구,
-사진이 모두 여기 있습니다. 컴포넌트에는 어떤 개인 정보도 하드코딩되어 있지
-않습니다.
+### 1. 청첩장 내용
 
-**2. 지도** — [map.kakao.com](https://map.kakao.com)에서 예식장을 검색해
-`지도 퍼가기 → HTML 태그 복사 → 소스 생성하기`를 누르면 나오는 `timestamp`와
-`key`를 `venue.map`에 넣습니다.
+[`src/data/invitation.ts`](./src/data/invitation.ts) **한 파일만 고치면 됩니다.**
+신랑·신부, 예식 일시, 예식장, 인사말, 인용구, 사진이 전부 여기 있습니다.
 
-기본값은 `null`입니다. 임베드 키는 특정 장소를 그대로 가리키기 때문에, 예시 키를
-남겨 두면 이름·주소는 `○○○`인데 지도 핀만 실제 장소를 찍는 모순된 화면이 나옵니다.
-`null`이면 지도 영역 없이 주소와 "카카오맵에서 길찾기" 링크만 표시됩니다.
+```ts
+export const invitation: Invitation = {
+  couple: {
+    groom: {
+      name: "김철수",
+      childOrder: "장남",
+      father: {
+        name: "김아버지",
+        account: { bank: "○○은행", number: "123-456-789" },
+      },
+      mother: { name: "김어머니", account: null }, // 계좌를 안 넣으려면 null
+      account: { bank: "○○은행", number: "123-456-789" },
+    },
+    bride: {/* 신랑과 같은 구조 */},
+  },
 
-**3. 환경 변수** — `.env.example`을 `.env`로 복사해 채웁니다.
+  ceremony: {
+    // 이 값 하나만 적으면 요일과 오전/오후가 자동으로 계산됩니다.
+    startsAt: "2026-05-16T12:00:00+09:00",
+  },
 
-```bash
-GATSBY_SITE_URL=https://your-domain.com   # OG 태그의 canonical URL
-GATSBY_KAKAO_JAVASCRIPT_KEY=              # 비우면 링크 복사만 제공
+  venue: {
+    name: "○○○웨딩홀",
+    hall: "3층 그랜드홀",
+    address: "서울특별시 ○○구 ○○로 123",
+    transit: [
+      { label: "버스", directions: ["101, 202번 ○○웨딩홀 앞 하차"] },
+      { label: "지하철", directions: ["2호선 ○○역 3번 출구 (도보 5분)"] },
+    ],
+    map: null, // 아래 "2. 지도" 참고
+  },
+
+  greeting: {
+    heading: "초대합니다",
+    paragraphs: ["첫 번째 문단", "두 번째 문단"],
+  },
+
+  quote: {
+    lines: ["인용구 첫 줄", "둘째 줄"],
+    source: "이수동, 「사랑가」",
+  },
+
+  gallery: [
+    { src: GalleryPhoto1, alt: "사진 설명" }, // alt은 시각장애인용 설명입니다
+  ],
+};
 ```
 
-Netlify에 배포한다면 `GATSBY_SITE_URL`은 생략해도 됩니다. 빌드 환경의 `URL`
-(미리보기 배포는 `DEPLOY_PRIME_URL`)을 자동으로 읽어 OG 태그에 채웁니다.
-`netlify.toml`에 빌드 명령·Node 버전·캐시 헤더가 함께 들어 있습니다.
+> **`account: null`** — 계좌를 공개하지 않으실 분은 `null`로 두세요. 목록에서 빠집니다.
+> 한쪽 집안 전체가 `null`이면 그쪽 버튼 자체가 나오지 않습니다.
 
-카카오 JavaScript 키는 클라이언트 노출을 전제로 발급되는 공개 키입니다
-(도메인 화이트리스트로 보호됩니다). 그럼에도 소스에 박지 않는 이유는, 포크한
-사람이 원저장소의 키로 요청을 보내게 되고 키 교체에 재배포가 강제되기
-때문입니다.
+> **날짜** — `startsAt` 하나만 정확히 적으면 "2026년 5월 16일 토요일 오후 12시 00분"과
+> D-day가 자동으로 만들어집니다. 요일을 직접 적지 않으니 틀릴 일이 없습니다.
 
-**4. 사진 교체 후** — 원본을 그대로 넣지 말고 최적화 스크립트를 실행하세요.
+### 2. 지도
+
+[map.kakao.com](https://map.kakao.com)에서 예식장을 검색한 뒤
+**지도 퍼가기 → HTML 태그 복사 → 소스 생성하기**를 누르면 아래 같은 코드가 나옵니다.
+
+```js
+new daum.roughmap.Lander({
+  "timestamp" : "1652464367301",
+  "key" : "2a8fe",
+  ...
+```
+
+이 두 값을 그대로 옮겨 적으세요.
+
+```ts
+map: { timestamp: "1652464367301", key: "2a8fe" },
+```
+
+`null`로 두면 지도 없이 **주소와 "카카오맵에서 길찾기" 링크만** 표시됩니다.
+
+### 3. 사진 · 배경 영상 · 음악
+
+[`src/assets/`](./src/assets) 안의 파일을 같은 이름으로 바꿔치기하면 됩니다.
+
+| 파일                    | 쓰이는 곳                |
+| ----------------------- | ------------------------ |
+| `Gallery_Photo_1~6`     | 사진첩                   |
+| `BackgroundVideo.mp4`   | 첫 화면 배경 영상        |
+| `BackgroundVideoPoster` | 영상 로딩 전 대체 이미지 |
+| `song.mp3`              | 배경음악                 |
+| `flower1.png`           | 섹션 장식                |
+| `GroovePaper.png`       | 페이지 배경 무늬         |
+
+**사진을 바꾸셨다면 최적화 스크립트를 꼭 돌려 주세요.**
+카메라 원본은 6000×4000처럼 매우 커서, 그대로 두면 모바일에서 로딩이 몇 초씩 걸립니다.
 
 ```bash
-./scripts/optimize-images.sh          # 1200px webp로 재인코딩
-python3 scripts/subset-font.py        # 폰트 문구를 크게 바꿨을 때만
+brew install webp                  # 처음 한 번만
+./scripts/optimize-images.sh       # 1200px WebP로 다시 인코딩
 ```
+
+인용구 문구를 크게 바꾸셔서 글꼴이 깨져 보일 때만:
+
+```bash
+pip install fonttools brotli
+python3 scripts/subset-font.py
+```
+
+### 4. 카카오톡 공유
+
+[카카오 개발자센터](https://developers.kakao.com)에서 애플리케이션을 만들고
+**JavaScript 키**를 발급받으세요. 그리고 **[앱 설정 → 플랫폼 → Web]에 배포 주소를 꼭
+등록**해야 동작합니다.
+
+```bash
+cp .env.example .env
+```
+
+```bash
+GATSBY_KAKAO_JAVASCRIPT_KEY=발급받은_JavaScript_키
+GATSBY_SITE_URL=https://your-domain.com
+```
+
+키를 넣지 않으면 카카오톡 버튼 없이 **링크 복사 기능만** 제공됩니다.
+`.env`는 커밋되지 않으니 안심하고 넣으셔도 됩니다.
+
+### 5. 색상 · 글자 크기
+
+[`src/styles/theme.ts`](./src/styles/theme.ts)에서 한 번에 바꿉니다.
+
+```ts
+accent: "#a8434a",       // 제목·강조 색
+background: "#efebe9",   // 페이지 배경
+```
+
+> 색을 바꾸실 때는 배경과의 명암 대비를 **4.5:1 이상**으로 유지해 주세요.
+> 연한 색은 밝은 곳에서 보거나 나이 드신 하객에게 잘 보이지 않습니다.
+> [WebAIM 대비 검사기](https://webaim.org/resources/contrastchecker/)에서 확인할 수 있습니다.
 
 ---
 
-## 명령어
+## 배포하기
+
+### Netlify (가장 간단합니다)
+
+1. 이 저장소를 Fork
+2. [Netlify](https://app.netlify.com)에서 **Add new site → Import an existing project**
+3. Fork한 저장소 선택 → 빌드 설정은 [`netlify.toml`](./netlify.toml)에 있으니 그대로 두시면 됩니다
+4. **Site settings → Environment variables**에 `GATSBY_KAKAO_JAVASCRIPT_KEY` 추가
+
+`GATSBY_SITE_URL`은 넣지 않으셔도 됩니다. Netlify가 배포 주소를 자동으로 알려 줍니다.
+
+자세한 과정은 [Gatsby 테마로 모바일 결혼 청첩장 만들기](https://joy.pe.kr/gatsby-wedding-deploy/)를
+참고하세요.
+
+### Vercel · GitHub Pages
+
+`npm run build`로 만들어진 `public/` 폴더를 올리시면 됩니다.
+
+---
+
+## 자주 묻는 것
+
+**Q. 신랑측만 계좌를 넣고 싶어요**
+신부측 `account`를 전부 `null`로 두시면 신부측 버튼이 나오지 않습니다.
+
+**Q. 배경음악을 빼고 싶어요**
+[`src/pages/index.tsx`](./src/pages/index.tsx)에서 `<MusicToggle />` 한 줄을 지우세요.
+
+**Q. 사진첩을 빼고 싶어요**
+같은 파일에서 `<Gallery />` 한 줄을 지우세요. 다른 섹션도 같은 방식입니다.
+
+**Q. 설치가 안 돼요**
+Node 버전을 확인해 주세요. `node -v`가 20 미만이면 [nvm](https://github.com/nvm-sh/nvm)으로
+올리시거나, 이 폴더에서 `nvm use`를 실행하시면 됩니다.
+
+---
+
+## 기술 스택
+
+Gatsby 5 · React 18 · TypeScript · styled-components
+
+런타임 의존성을 5개로 유지하고 UI 컴포넌트를 직접 구현했습니다.
+모달 포커스 트랩, 스크린 리더 알림, 색 대비 같은 접근성 요구사항을 반영했고
+Vitest 테스트 79건을 갖추고 있습니다.
 
 ```bash
-npm start            # 개발 서버
-npm run build        # 프로덕션 빌드
-npm test             # 테스트
-npm run test:coverage
-npm run typecheck
-npm run lint
-npm run format
-npm run validate     # typecheck + lint + test
+npm run validate    # 타입 검사 + 린트 + 테스트
+npm test
+npm run build
 ```
+
+설계 판단과 구현 배경은 커밋 히스토리에 정리해 두었습니다.
 
 ---
 
 ## 라이선스
 
-[MIT](./LICENSE)
+[MIT](./LICENSE) — 자유롭게 쓰시고 수정하셔도 됩니다.
 
-손글씨 폰트는 네이버 [나눔손글씨 "딸에게 엄마가"](https://clova.ai/handwriting)를
-사용했습니다.
+인용구 글꼴은 네이버 [나눔손글씨 "딸에게 엄마가"](https://clova.ai/handwriting)입니다.
+샘플 사진과 음원은 예시용이므로 **배포 전에 반드시 교체해 주세요.**

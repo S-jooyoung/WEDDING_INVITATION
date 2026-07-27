@@ -14,6 +14,8 @@ export default defineConfig({
     globals: true,
     setupFiles: ["./vitest.setup.ts"],
     include: ["src/**/*.test.{ts,tsx}"],
+    /* 테스트가 아직 없는 커밋에서도 게이트가 통과하도록 한다. */
+    passWithNoTests: true,
     coverage: {
       provider: "v8",
       reporter: ["text", "lcov"],

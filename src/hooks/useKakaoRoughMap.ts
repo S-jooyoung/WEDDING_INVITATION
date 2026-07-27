@@ -65,7 +65,14 @@ export function useKakaoRoughMap(embed: KakaoMapEmbed | null): {
       ...window.daum.roughmap,
       cdn: ROUGHMAP_CDN,
       URL_KEY_DATA_LOAD_PRE: "https://t1.daumcdn.net/roughmap/",
-      url_protocal: "https://",
+      /*
+       * 슬래시를 붙이지 않는다. lander 스크립트가 이 값을 두 곳에서 쓰는데,
+       * 하나는 URL 문자열 연결이고 다른 하나는 `"https:" === url_protocal`
+       * 동등 비교다. 비교가 실패하면 응답 페이로드의 http:// 링크를 https로
+       * 바꾸는 처리가 통째로 건너뛰어져, HTTPS 페이지에서 mixed content로
+       * 차단된다. 그때도 render()는 성공하므로 실패 폴백조차 뜨지 않는다.
+       */
+      url_protocal: "https:",
     };
 
     loadScript(ROUGHMAP_SCRIPT)
@@ -87,7 +94,9 @@ export function useKakaoRoughMap(embed: KakaoMapEmbed | null): {
 
         setStatus("ready");
       })
-      .catch(() => {
+      .catch((error: unknown) => {
+        /* 실패 원인을 남긴다. 화면에는 대체 UI만 보이므로 로그가 유일한 단서다. */
+        console.warn("카카오맵을 불러오지 못했습니다.", error);
         if (!cancelled) setStatus("failed");
       });
 
